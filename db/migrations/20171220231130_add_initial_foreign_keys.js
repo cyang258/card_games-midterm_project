@@ -7,13 +7,8 @@ exports.up = function(knex, Promise) {
     knex.schema.alterTable('games', (table) => {
       table.foreign('game_name_id').references('game_names.id').onDelete('CASCADE');
     }),
-    knex.schema.alterTable('game_cards', (table) => {
-      table.foreign('game_name_id').references('game_names.id').onDelete('CASCADE');
-      table.foreign('card_id').references('cards.id').onDelete('CASCADE');
-    }),
-    knex.schema.alterTable('logs', (table) => {
+    knex.schema.alterTable('moves', (table) => {
       table.foreign('game_id').references('games.id').onDelete('CASCADE');
-      table.foreign('card_id').references('cards.id').onDelete('CASCADE');
       table.foreign('user_id').references('users.id').onDelete('CASCADE');
     })
   ]);
@@ -28,13 +23,8 @@ exports.down = function(knex, Promise) {
     knex.schema.alterTable('games', (table) => {
       table.dropForeign('game_name_id');
     }),
-    knex.schema.alterTable('game_cards', (table) => {
-      table.dropForeign('game_name_id');
-      table.dropForeign('card_id');
-    }),
-    knex.schema.alterTable('logs', (table) => {
+    knex.schema.alterTable('moves', (table) => {
       table.dropForeign('game_id');
-      table.dropForeign('card_id');
       table.dropForeign('user_id');
     })
   ]);
