@@ -6,24 +6,28 @@
     <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" type="text/css" />
     <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
     <script type="text/javascript" src="/scripts/app.js"></script>
   </head>
 
   <body>
-    <div class="rps-wrapper">
-      <ul id="events">
-        <li>Welcome to RPS</li>
-      </ul>
-
-      <div class="button-wrapper">
-        <input id="chat">
-        <button id="rock">Rock</button>
-        <button id="paper">Paper</button>
-        <button id="scissors">Scissors</button>
-        <button id="say">Say</button>
+    <%-include _header.ejs %>
+    <p>some kind of description about our site</p>
+    <div class="row" style="margin: 10px;">
+      <div class="col-sm-4">
+        <img src="http://www.fillmurray.com/300/300">
+        <button class="btn btn-block btn-success" action="#">Play Now</button>
+      </div>
+      <div class="col-sm-4">
+        <img src="http://www.fillmurray.com/300/300">
+        <button class="btn btn-block btn-success" action="#">Play Now</button>
+      </div>
+      <div class="col-sm-4">
+        <img src="http://www.fillmurray.com/300/300">
+        <button class="btn btn-block btn-success" action="#">Play Now</button>
       </div>
     </div>
+
   </body>
 </html>
