@@ -1,7 +1,7 @@
 
 exports.up = function(knex, Promise) {
   return Promise.all([
-    knex('users').truncate().then(() => {
+    knex('users').del().then(() => {
       return knex.schema.alterTable('users', (table) => {
         table.dropColumn('name');
         table.string('username');
