@@ -21,6 +21,22 @@ module.exports = (DataHelpers) => {
     return cardString;
   };
 
+  const stringToCard = function(cardName) {
+    let num = parseInt(cardName.charAt(0));
+    if(num === 0) {
+      num = 13;
+    }
+
+    if(cardName.indexOf('diamonds') > -1) {
+      num += 13;
+    } else if(cardName.indexOf('hearts') > -1) {
+      num += 26;
+    } else if(cardName.indexOf('hearts') > -1) {
+      num += 39;
+    }
+    return num;
+  };
+
   const convertAllCards = function (cards) {
     let cardStrings = cards.map(convertCardToString);
     return cardStrings;
@@ -33,10 +49,22 @@ module.exports = (DataHelpers) => {
   router.get("/games/:id", (req, res) => {
     DataHelpers.getGameState(1).then((gameState) => {
       gameState.hands.deck = convertAllCards(gameState.hands.deck);
-      gameState.hands["3"] = convertAllCards(gameState.hands["3"]);
-      gameState.hands["4"] = convertAllCards(gameState.hands["4"]);
+      gameState.hands["3"] = convertAllCards(gameState.hands["3"]);   // Replace with userId
+      gameState.hands["4"] = convertAllCards(gameState.hands["4"]);   // Replace with userId
       let templateVars = { state: gameState };
       res.json(gameState);
+    });
+  });
+
+  router.post("/games/:id", (req, res) => {
+    let card = stringToCard(req.body.card);
+    let gameId = req.params.id;
+    DataHelpers.getGameState(gameId).then((result) => {
+      result.ready.push("4");       // Replace with userId
+      DataHelpers.updateGameState(gameId, result).then((state)=> {
+        console.log("Return state:", state);
+        res.json({ res: "State updated" });
+      });
     });
   });
 
