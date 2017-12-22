@@ -44,7 +44,7 @@ exports.down = function(knex, Promise) {
     knex.schema.dropTable('user_games'),
     knex.schema.dropTable('games'),
     knex.schema.dropTable('game_names'),
-    knex.schema.dropTable('moves')
-    // knex.schema.dropTable('lobby')
+    knex.schema.dropTable('moves'),
+    knex.schema.dropTable('lobby')
   ]);
 };

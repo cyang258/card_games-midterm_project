@@ -3,16 +3,17 @@
   <head>
     <title>Home Page</title>
 
-    <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" type="text/css" />
-    <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
+    <%- include /partials/_head.ejs %>
+
+    <!-- Layouts CSS -->
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
+
+    <!-- App script -->
     <script type="text/javascript" src="/scripts/app.js"></script>
   </head>
 
   <body>
-    <%-include _header.ejs %>
+    <%- include _header.ejs %>
     <p>some kind of description about our site</p>
     <div class="row" style="margin: 10px;">
       <div class="col-sm-4">

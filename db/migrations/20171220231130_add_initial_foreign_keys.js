@@ -30,10 +30,10 @@ exports.down = function(knex, Promise) {
     knex.schema.alterTable('moves', (table) => {
       table.dropForeign('game_id');
       table.dropForeign('user_id');
+    }),
+    knex.schema.alterTable('lobby', (table) => {
+      table.dropForeign('game_name_id');
+      table.dropForeign('user_id');
     })
-    // knex.schema.alterTable('lobby', (table) => {
-    //   table.dropForeign('game_name_id');
-    //   table.dropForeign('user_id');
-    // })
   ]);
 };

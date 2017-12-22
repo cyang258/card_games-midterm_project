@@ -6,10 +6,18 @@ const gameHelpers = require("../lib/util/game_helpers");
 
 module.exports = (DataHelpers) => {
 
+  // Users stats page, game page if logged in
   router.get("/users/:id", (req, res) => {
     res.render("users");
   });
 
+  // Join lobby for a game
+  router.get("/games/join/:id", (req, res) => {
+    let gameNameId = req.params.id;
+    DataHelpers.addUserToLobby(4, gameNameId);
+  });
+
+  // Game route for updating cards
   router.get("/games/:id", (req, res) => {
     DataHelpers.getGameState(1).then((gameState) => {
       gameState.hands.deck = gameHelpers.convertAllCards(gameState.hands.deck);
@@ -20,6 +28,7 @@ module.exports = (DataHelpers) => {
     });
   });
 
+  // Game route for playing a card
   router.post("/games/:id", (req, res) => {
     let card = gameHelpers.stringToCard(req.body.card);
     let gameId = req.params.id;
@@ -53,4 +62,4 @@ module.exports = (DataHelpers) => {
   });
 
   return router;
-}
+};
