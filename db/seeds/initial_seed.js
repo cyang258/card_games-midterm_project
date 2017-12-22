@@ -10,7 +10,8 @@ exports.seed = function(knex, Promise) {
       "3": 9,
       "4": 17
     },
-    turn: [],
+    turn: ["4"],
+    played: []
   };
   // Deletes ALL existing entries
   return Promise.all([
