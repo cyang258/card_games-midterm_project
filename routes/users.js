@@ -8,6 +8,7 @@ module.exports = (DataHelpers) => {
 
   // Users stats page, game page if logged in
   router.get("/users/:id", (req, res) => {
+    req.session.userId = 2;
     res.render("users");
   });
 
@@ -36,25 +37,31 @@ module.exports = (DataHelpers) => {
 
   // Game route for updating cards
   router.get("/games/:id", (req, res) => {
-    DataHelpers.getGameState(1).then((gameState) => {
-      console.log("Game state on refresh:", gameState);
-      gameState.hands.deck = gameHelpers.convertAllCards(gameState.hands.deck);
-      gameState.hands["1"] = gameHelpers.convertAllCards(gameState.hands["1"]);   // Replace with userId
-      gameState.hands["2"] = gameHelpers.convertAllCards(gameState.hands["2"]);   // Replace with userId
-      let templateVars = { state: gameState };
-      res.json(gameState);
+    let userId = req.session.userId;
+
+    DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
+      if(!gameState){
+        res.json(null);
+      } else {
+        userId = userId.toString();
+        gameState.hands.deck = gameHelpers.convertCardToString(gameState.hands.deck[0]);
+        gameState.hands[userId] = gameHelpers.convertAllCards(gameState.hands[userId]);   // Replace with userId
+        let templateVars = { state: gameState };
+        res.json(gameState);
+      }
     });
   });
 
-  // Game route for playing a card
+  // Card played
   router.post("/games/:id", (req, res) => {
     let card = gameHelpers.stringToCard(req.body.card);
     let gameId = req.params.id;
+    let userId = req.session.userId;
 
     DataHelpers.getGameState(gameId)
     .then((state) => {
-      state.played.push({ userId: "2", card: card }); //User name
-      let index = state.turn.indexOf("2");            //User name
+      state.played.push({ userId, card });
+      let index = state.turn.indexOf(userId);
       state.turn.splice(index, 1);
 
       return DataHelpers.updateGameState(gameId, state);
@@ -66,16 +73,6 @@ module.exports = (DataHelpers) => {
       return DataHelpers.updateGameState(gameId, newState);
     }).then((state) => {
       res.json(state);
-    });
-  });
-
-  // To visit user page
-  router.get("/users/:id", (req, res) => {
-    knex
-      .select("*")
-      .from("users")
-      .then((results) => {
-        res.json(results);
     });
   });
 
