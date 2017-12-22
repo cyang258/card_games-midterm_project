@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript" src="/scripts/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
   </head>
 
   <body>
@@ -28,6 +29,14 @@
         <button class="btn btn-block btn-success" action="#">Play Now</button>
       </div>
     </div>
+    <script>
+      $(function(){
+        var socket = io.connect();
 
+
+
+
+      })
+    </script>
   </body>
 </html>

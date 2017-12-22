@@ -45,7 +45,31 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
+//Set up socket.io connection
+const server      = require("http").createServer(app);
+const io          = require("socket.io").listen(server);
 
-app.listen(PORT, () => {
+var users = [];
+var connections = [];
+
+
+
+io.on('connection', function(socket) {
+
+
+  console.log(io)
+
+  console.log('Connected: %s sockets connected', connections.length)
+
+  // Disconnect
+  socket.on('disconnect', function(data){
+
+    console.log('Disconnected: %s sockets connected', connections.length)
+  })
+})
+
+
+server.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
 });
+
