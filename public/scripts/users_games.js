@@ -33,6 +33,28 @@ $(() => {
     $('.deck').append($card);
   };
 
+  const checkGameState = function() {
+    $.ajax({
+      method: "GET",
+      url: "/cards/games/1/lobby",   // Replace with gameId
+      dataType: 'JSON'
+    }).then((state) => {
+    });
+  };
+
+  $('.join-lobby').click(function() {
+    $.ajax({
+      method: "POST",
+      url: "/cards/games/join/1",   // Replace with gameNameId
+      data: $.param({userId: 4, gameNameId: 1})   // Replace with gameNameId and userId
+    }).then(() => {
+      console.log("Done joining lobby");
+    });
+    setInterval(checkGameState);
+  });
+
+
+
   $.ajax({
     method: "GET",
     url: "/cards/games/1"   // Replace with gameId

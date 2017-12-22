@@ -42,8 +42,7 @@ exports.seed = function(knex, Promise) {
     ]);
   }).then(function () {
     return Promise.all([
-      knex('lobby').insert({user_id: 3, game_name_id: 1}),
-      knex('lobby').insert({user_id: 4, game_name_id: 1}),
+      knex('lobby').insert({user_id: 3, game_name_id: 1, game_id: null}),
     ]);
   }).then(function () {
     return Promise.all([

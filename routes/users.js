@@ -11,10 +11,26 @@ module.exports = (DataHelpers) => {
     res.render("users");
   });
 
+  router.get("/games/:id/lobby", (req, res) => {
+    let gameId = req.params.id;
+    DataHelpers.getLobby(gameId, 4).then((results) => {
+      if(results.game_id) {
+        res.json(results);
+      } else{
+        res.json(null);
+      }
+    });
+  });
+
   // Join lobby for a game
-  router.get("/games/join/:id", (req, res) => {
+  router.post("/games/join/:id", (req, res) => {
     let gameNameId = req.params.id;
-    DataHelpers.addUserToLobby(4, gameNameId);
+    DataHelpers.addUserToLobby(4, gameNameId).then((lobby) => {
+      if(lobby.length > 1) {
+        DataHelpers.makeLobbyActive(gameNameId);      // Make lobby dynamic for players
+      }
+      res.json(lobby);
+    });
   });
 
   // Game route for updating cards

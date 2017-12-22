@@ -35,6 +35,7 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable('lobby', (table) => {
       table.integer('game_name_id');
       table.integer('user_id');
+      table.string('game_id');
     })
   ]);
 };
