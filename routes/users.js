@@ -11,12 +11,13 @@ module.exports = (DataHelpers) => {
     res.render("users");
   });
 
+  // Check if still in lobby
   router.get("/games/:id/lobby", (req, res) => {
     let gameId = req.params.id;
-    DataHelpers.getLobby(gameId, 4).then((results) => {
+    DataHelpers.getLobby(gameId, 2).then((results) => {
       if(results.game_id) {
         res.json(results);
-      } else{
+      } else {
         res.json(null);
       }
     });
@@ -25,9 +26,9 @@ module.exports = (DataHelpers) => {
   // Join lobby for a game
   router.post("/games/join/:id", (req, res) => {
     let gameNameId = req.params.id;
-    DataHelpers.addUserToLobby(4, gameNameId).then((lobby) => {
+    DataHelpers.addUserToLobby(2, gameNameId).then((lobby) => {
       if(lobby.length > 1) {
-        DataHelpers.makeLobbyActive(gameNameId);      // Make lobby dynamic for players
+        DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
       }
       res.json(lobby);
     });
@@ -36,9 +37,10 @@ module.exports = (DataHelpers) => {
   // Game route for updating cards
   router.get("/games/:id", (req, res) => {
     DataHelpers.getGameState(1).then((gameState) => {
+      console.log("Game state on refresh:", gameState);
       gameState.hands.deck = gameHelpers.convertAllCards(gameState.hands.deck);
-      gameState.hands["3"] = gameHelpers.convertAllCards(gameState.hands["3"]);   // Replace with userId
-      gameState.hands["4"] = gameHelpers.convertAllCards(gameState.hands["4"]);   // Replace with userId
+      gameState.hands["1"] = gameHelpers.convertAllCards(gameState.hands["1"]);   // Replace with userId
+      gameState.hands["2"] = gameHelpers.convertAllCards(gameState.hands["2"]);   // Replace with userId
       let templateVars = { state: gameState };
       res.json(gameState);
     });
@@ -51,8 +53,8 @@ module.exports = (DataHelpers) => {
 
     DataHelpers.getGameState(gameId)
     .then((state) => {
-      state.played.push({ userId: "4", card: card });
-      let index = state.turn.indexOf("4");
+      state.played.push({ userId: "2", card: card }); //User name
+      let index = state.turn.indexOf("2");            //User name
       state.turn.splice(index, 1);
 
       return DataHelpers.updateGameState(gameId, state);

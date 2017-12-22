@@ -40,7 +40,7 @@ $(() => {
       dataType: 'JSON'
     }).then((lobby) => {
       if(lobby) {
-        checkGameState(lobby.gameId);
+        getGameState(1);
       }
     });
   };
@@ -49,7 +49,7 @@ $(() => {
     $.ajax({
       method: "POST",
       url: "/cards/games/join/1",   // Replace with gameNameId
-      data: $.param({userId: 4, gameNameId: 1})   // Replace with gameNameId and userId
+      data: $.param({userId: 2, gameNameId: 1})   // Replace with gameNameId and userId
     }).then(() => {
       console.log("Done joining lobby");
     });
@@ -62,11 +62,13 @@ const getGameState = function(gameId) {
     method: "GET",
     url: `/cards/games/${gameId}`   // Replace with gameId
   }).done((state) => {
-    console.log("Respose from GET request to game:", state.hands["4"]); // Replace with userId
-    renderCards(state.hands["4"]);    // Replace with userId
+    console.log("Respose from GET request to game:", state.hands["2"]); // Replace with userId
+    renderCards(state.hands["2"]);    // Replace with userId
   }).then(() => {
     $('.user-hand').click(clickCard);
   });
 };
+
+getGameState(1);  //Hardcoded check
 
 });
