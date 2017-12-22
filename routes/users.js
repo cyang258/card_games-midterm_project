@@ -23,7 +23,6 @@ module.exports = (DataHelpers) => {
   router.post("/games/:id", (req, res) => {
     let card = gameHelpers.stringToCard(req.body.card);
     let gameId = req.params.id;
-    console.log(card);
 
     DataHelpers.getGameState(gameId)
     .then((state) => {
@@ -37,8 +36,9 @@ module.exports = (DataHelpers) => {
       if(state[0].played.length > 0) {      // Replace with number of players
         newState = gameHelpers.advanceGame(1, state[0]);
       }
-      console.log("Newstate:", newState);
-      res.json(newState);
+      return DataHelpers.updateGameState(gameId, newState);
+    }).then((state) => {
+      res.json(state);
     });
   });
 

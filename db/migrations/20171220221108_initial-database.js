@@ -31,6 +31,10 @@ exports.up = function(knex, Promise) {
       table.integer('user_id');
       table.string('card');
       table.string('move');
+    }),
+    knex.schema.createTable('lobby', (table) => {
+      table.integer('game_name_id');
+      table.integer('user_id');
     })
   ]);
 };
@@ -41,5 +45,6 @@ exports.down = function(knex, Promise) {
     knex.schema.dropTable('games'),
     knex.schema.dropTable('game_names'),
     knex.schema.dropTable('moves')
+    // knex.schema.dropTable('lobby')
   ]);
 };

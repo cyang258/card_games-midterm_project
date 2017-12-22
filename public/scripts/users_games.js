@@ -1,20 +1,22 @@
 $(() => {
   const renderCards = function(cards) {
     cards.forEach( (card) => {
-      $('.user-hand').append(`<img class="${card}" src="/images/cards/${card}.png" height="70" width="50">`);
+      let $cardImage = $(`<img class="${card}" src="/images/cards/${card}.png" height="70" width="50">`);
+      $('.user-hand').append($cardImage);
     });
   };
 
   const confirmCard = function(event) {
     let $image = $('.deck').find('img');
-    console.log("confirming");
+    // $('.confirm').off(confirmCard);
+    $('.confirm').remove();
 
     $.ajax({
       method: "POST",
       url: "/cards/games/1",      // Replace with gameId
       data: $.param({ card: $image[0].className })
     }).then((result) => {
-      console.log(result);
+      console.log("The result from confirm:", result);
     });
   };
 
@@ -35,7 +37,7 @@ $(() => {
     method: "GET",
     url: "/cards/games/1"   // Replace with gameId
   }).done((state) => {
-    console.log("From get:", state.hands["4"]); // Replace with userId
+    console.log("Respose from GET request to game:", state.hands["4"]); // Replace with userId
     renderCards(state.hands["4"]);    // Replace with userId
   }).then(() => {
     $('.user-hand').click(clickCard);

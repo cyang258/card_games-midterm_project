@@ -10,6 +10,10 @@ exports.up = function(knex, Promise) {
     knex.schema.alterTable('moves', (table) => {
       table.foreign('game_id').references('games.id').onDelete('CASCADE');
       table.foreign('user_id').references('users.id').onDelete('CASCADE');
+    }),
+    knex.schema.alterTable('lobby', (table) => {
+      table.foreign('game_name_id').references('game_names.id').onDelete('CASCADE');
+      table.foreign('user_id').references('users.id').onDelete('CASCADE');
     })
   ]);
 };
@@ -27,5 +31,9 @@ exports.down = function(knex, Promise) {
       table.dropForeign('game_id');
       table.dropForeign('user_id');
     })
+    // knex.schema.alterTable('lobby', (table) => {
+    //   table.dropForeign('game_name_id');
+    //   table.dropForeign('user_id');
+    // })
   ]);
 };

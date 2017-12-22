@@ -42,6 +42,11 @@ exports.seed = function(knex, Promise) {
     ]);
   }).then(function () {
     return Promise.all([
+      knex('lobby').insert({user_id: 3, game_name_id: 1}),
+      knex('lobby').insert({user_id: 4, game_name_id: 1}),
+    ]);
+  }).then(function () {
+    return Promise.all([
       knex('moves').insert({game_id: 1, user_id: 1, card: 'S9', move: 'play'}),
       knex('moves').insert({game_id: 1, user_id: 3, card: 'C11', move: 'play'}),
       knex('moves').insert({game_id: 1, user_id: 4, card: 'D8', move: 'play'}),
