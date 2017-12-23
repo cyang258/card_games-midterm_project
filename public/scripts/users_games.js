@@ -73,7 +73,7 @@ const getGameState = function(gameId) {
     method: "GET",
     url: `/cards/games/${gameId}`   // Replace with gameId
   }).done((state) => {
-    if(state.null) {
+    if(!state) {
       return;
     }
 

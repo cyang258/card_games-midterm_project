@@ -6,21 +6,37 @@ const gameHelpers = require("../lib/util/game_helpers");
 
 module.exports = (DataHelpers) => {
 
-  // Users stats page, game page if logged in
+  // Users pages
   router.get("/users/:id", (req, res) => {
-    req.session.userId = 2;
     let userId = req.session.userId;
     let templateVars = { userId };
-
+    console.log('Userid on render:', userId);
     res.render("users", templateVars);
   });
 
-  router.get("/login", (req, res) => {
-    req.session.userId = 2;
-    let userId = req.session.userId;
-    let templateVars = { userId };
+  // User Login
+  router.post("/login", (req, res) => {
+    let { username, password } = req.body;
+    console.log('login', username);
+    DataHelpers.getUser(username, password).then((result) => {
+      if(!result) {
+        res.status(404).send();
+      } else {
+        console.log("Result of login query:", result);
+        req.session.userId = result[0].id;
+        let templateVars = { userId: result[0].id };
 
-    res.render("users", templateVars);
+        res.redirect(req.get('referer'));
+      }
+    });
+  });
+
+  // User Logout
+  router.post("/logout", (req, res) => {
+    req.session = null;
+    let templateVars = { userId: null };
+
+    res.redirect(req.get('referer'));
   });
 
   // Check if still in lobby
@@ -50,21 +66,24 @@ module.exports = (DataHelpers) => {
   // Game route for updating cards
   router.get("/games/:id", (req, res) => {
     let userId = req.session.userId;
-
-    DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
-      if(!gameState){
-        res.json({ null: true });
-      } else {
-        userId = userId.toString();
-        console.log("Game State:", gameState);
-        let state = {
-          deck: gameHelpers.convertCardToString(gameState.hands.deck[0]),
-          user: gameHelpers.convertAllCards(gameState.hands[userId]),
-          turn: gameState.turn
-        };
-        res.json(state);
-      }
-    });
+    if(userId) {
+      DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
+        if(!gameState){
+          res.json({ null: true });
+        } else {
+          userId = userId.toString();
+          console.log("Game State:", gameState);
+          let state = {
+            deck: gameHelpers.convertCardToString(gameState.hands.deck[0]),
+            user: gameHelpers.convertAllCards(gameState.hands[userId]),
+            turn: gameState.turn
+          };
+          res.json(state);
+        }
+      });
+    } else {
+      res.json(null);
+    }
   });
 
   // Card played

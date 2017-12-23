@@ -1,43 +1,65 @@
 
-<div class="jumbotron jumbotron-fluid" style="background-color: purple; color: white;">
+<div class="jumbotron jumbotron-fluid" style="background-color: #A5D6A7; color: white;">
   <div class="container">
     <div class="row">
-      <div class="col-sm-4">
-        <p style="font-size:4em; margin-left:0px;">Card Game Collections</p>
+      <div class="col-sm-8">
+        <p style="font-size:4em; margin-left:0px;">Card Games</p>
       </div>
-      <div class="col-sm-4">
-        <form>
-          <div class="form-group">
-              <label>Username</label>
-              <input type="text" name="username" placeholder="Enter Your Username" required>
-          </div>
-          <div class="form-group">
-              <label>Password</label>
-              <input type="text" name="password" placeholder="Enter Your Password" required>
-          </div>
-          <br>
-          <br>
-              <button action="/login" class="btn btn-primary text-center">Login</button>
-        </form>
-      </div>
-      <div class="col-sm-4">
-        <form>
-          <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" placeholder="Pick A Username" required>
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="text" name="password" placeholder="Create Your Password" required>
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="text" name="email" placeholder="Enter Your Email" required>
-          </div>
-            <button action="/register" class="btn btn-primary text-center">Register</button>
-        </form>
+      <div class="col-sm-4 align-right user-forms">
+        <% if(userId) { %>
+          <form class="form-vertical logout" action="/cards/logout" method="POST">
+            <div class="form-group">
+              <button class="btn btn-primary text-center logout">Logout</button>
+            </div>
+          </form>
+        <% } else { %>
+          <form class="form-vertical login" action="/cards/login" method="POST">
+            <div class="form-group">
+              <input type="text" name="username" placeholder="Email/Username">
+            </div>
+            <div class="form-group">
+              <input type="password" name="password" placeholder="Password">
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary text-center login">Login</button>
+            </div>
+          </form>
+          <form class="form-vertical register">
+            <div class="form-group">
+              <button class="btn btn-primary text-center register">Register</button>
+            </div>
+          </form>
+        <% } %>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  // $(() => {
+  //   const loginListener = function(event) {
+  //     event.preventDefault();
+  //     let info = $(this).serialize();
+  //     console.log("Posted data:", info)
+
+  //     $.ajax({
+  //       method: "POST",
+  //       url: "/cards/login",   // Replace with gameNameId
+  //       data: info   // Replace with gameNameId and userId
+  //     })
+  //   }
+
+  //   const logoutListener = function(event) {
+  //     event.preventDefault();
+
+  //     $.ajax({
+  //       method: "POST",
+  //       url: "/cards/logout",   // Replace with gameNameId
+  //     })
+  //   }
+
+  //   $('.logout').on('submit', logoutListener);
+  //   $('.login').on('submit', loginListener);
+  });
+</script>
 
