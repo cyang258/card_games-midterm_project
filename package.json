@@ -27,6 +27,7 @@
     "ws": "^3.3.3"
   },
   "devDependencies": {
+    "ngrok": "^2.2.24",
     "nodemon": "^1.9.2"
   }
 }

@@ -1,4 +1,26 @@
 $(() => {
+  var lobbyTimer;
+
+  const setLobbyTimer = function() {
+    lobbyTimer = setInterval(function() {
+      $.ajax({
+        method: "GET",
+        url: "/cards/games/1/lobby",   // Replace with gameId
+        dataType: 'JSON'
+      }).then((lobby) => {
+        console.log("Lobby on return:", lobby);
+        if(lobby) {
+          getGameState(1);    //Hardcoded
+          clearLobbyTimer();
+        }
+      });
+    }, 1000);
+  };
+
+  const clearLobbyTimer = function() {
+    clearInterval(lobbyTimer);
+  };
+
   const renderCards = function(cards) {
     cards.forEach( (card) => {
       let $cardImage = $(`<img class="${card}" src="/images/cards/${card}.png" height="70" width="50">`);
@@ -7,8 +29,9 @@ $(() => {
   };
 
   const confirmCard = function(event) {
-    let $image = $('.deck').find('img');
-    // $('.confirm').off(confirmCard);
+    let $image = $('.play-area').find('img');
+    $('.confirm').off("click", confirmCard);
+    $('.user-hand').off("click", clickCard);
     $('.confirm').remove();
 
     $.ajax({
@@ -28,21 +51,9 @@ $(() => {
     }
 
     let $card = $(`.${event.target.className}`);
-    $('.deck').append($(`<button class="confirm">Confirm</button>`));
+    $('.play-area').append($(`<button class="confirm">Confirm</button>`));
     $('.confirm').click(confirmCard);
-    $('.deck').append($card);
-  };
-
-  const checkGameState = function() {
-    $.ajax({
-      method: "GET",
-      url: "/cards/games/1/lobby",   // Replace with gameId
-      dataType: 'JSON'
-    }).then((lobby) => {
-      if(lobby) {
-        getGameState(1);
-      }
-    });
+    $('.play-area').append($card);
   };
 
   $('.join-lobby').click(function() {
@@ -53,7 +64,7 @@ $(() => {
     }).then(() => {
       console.log("Done joining lobby");
     });
-    setInterval(checkGameState, 5000);
+    setLobbyTimer();
   });
 
 
@@ -62,9 +73,20 @@ const getGameState = function(gameId) {
     method: "GET",
     url: `/cards/games/${gameId}`   // Replace with gameId
   }).done((state) => {
-    console.log("Respose from GET request to game:", state.hands["2"]); // Replace with userId
-    renderCards(state.hands["2"]);    // Replace with userId
-  }).then(() => {
+    if(state.null) {
+      return;
+    }
+
+    let $hand = $('.user-hand');
+    if($hand.data('turn') !== state.turn) {
+      $('.confirm').parent().find('img').remove();
+      $hand.data('turn', state.turn);
+    }
+    console.log("Respose from GET request to game:", state.user); // Replace with userId
+    renderCards(state.user);    // Replace with userId
+    $('.deck-flipped').remove();
+    $('.deck-display').append(`<img class="deck-flipped" src="/images/cards/${state.deck}.png" height="70" width="50">`);
+
     $('.user-hand').click(clickCard);
   });
 };

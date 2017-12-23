@@ -10,6 +10,7 @@ const sass          = require("node-sass-middleware");
 const app           = express();
 const http          = require("http");
 const cookieSession = require('cookie-session');
+const ngrok         = require('ngrok');
 
 
 const knexConfig  = require("./knexfile");
@@ -26,6 +27,14 @@ app.use(cookieSession({
   secret: process.env.COOKIE_SECRET,
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+
+// Testing with other users
+// ngrok.connect(9090, function (err, url) {
+//   if(err) {
+//     console.log(err);
+//   };
+//   console.log(url);
+// });
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.

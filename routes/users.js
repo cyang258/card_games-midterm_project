@@ -9,15 +9,19 @@ module.exports = (DataHelpers) => {
   // Users stats page, game page if logged in
   router.get("/users/:id", (req, res) => {
     req.session.userId = 2;
-    res.render("users");
+    let userId = req.session.userId;
+    let templateVars = { userId };
+
+    res.render("users", templateVars);
   });
 
   // Check if still in lobby
   router.get("/games/:id/lobby", (req, res) => {
     let gameId = req.params.id;
     DataHelpers.getLobby(gameId, 2).then((results) => {
-      if(results.game_id) {
-        res.json(results);
+      console.log("Results from check lobby:", results);
+      if(results[0]) {
+        res.json(results[0]);
       } else {
         res.json(null);
       }
@@ -41,13 +45,16 @@ module.exports = (DataHelpers) => {
 
     DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
       if(!gameState){
-        res.json(null);
+        res.json({ null: true });
       } else {
         userId = userId.toString();
-        gameState.hands.deck = gameHelpers.convertCardToString(gameState.hands.deck[0]);
-        gameState.hands[userId] = gameHelpers.convertAllCards(gameState.hands[userId]);   // Replace with userId
-        let templateVars = { state: gameState };
-        res.json(gameState);
+        console.log("Game State:", gameState);
+        let state = {
+          deck: gameHelpers.convertCardToString(gameState.hands.deck[0]),
+          user: gameHelpers.convertAllCards(gameState.hands[userId]),
+          turn: gameState.turn
+        };
+        res.json(state);
       }
     });
   });
@@ -61,8 +68,8 @@ module.exports = (DataHelpers) => {
     DataHelpers.getGameState(gameId)
     .then((state) => {
       state.played.push({ userId, card });
-      let index = state.turn.indexOf(userId);
-      state.turn.splice(index, 1);
+      // let index = state.turn.indexOf(userId);
+      // state.turn.splice(index, 1);
 
       return DataHelpers.updateGameState(gameId, state);
     }).then((state)=> {
