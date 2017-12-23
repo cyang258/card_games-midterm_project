@@ -15,6 +15,14 @@ module.exports = (DataHelpers) => {
     res.render("users", templateVars);
   });
 
+  router.get("/login", (req, res) => {
+    req.session.userId = 2;
+    let userId = req.session.userId;
+    let templateVars = { userId };
+
+    res.render("users", templateVars);
+  });
+
   // Check if still in lobby
   router.get("/games/:id/lobby", (req, res) => {
     let gameId = req.params.id;
