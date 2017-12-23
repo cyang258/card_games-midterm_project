@@ -7,6 +7,7 @@
       </div>
       <div class="col-sm-4 align-right user-forms">
         <% if(userId) { %>
+          <p><%= userId %></p>
           <form class="form-vertical logout" action="/cards/logout" method="POST">
             <div class="form-group">
               <button class="btn btn-primary text-center logout">Logout</button>

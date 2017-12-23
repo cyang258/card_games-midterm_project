@@ -1,24 +1,35 @@
 $(() => {
-  var lobbyTimer;
+  let lobbyTimer;
+  let gameTimer;
+  $('.deck').data('gameId', 1);
 
   const setLobbyTimer = function() {
-    lobbyTimer = setInterval(function() {
-      $.ajax({
-        method: "GET",
-        url: "/cards/games/1/lobby",   // Replace with gameId
-        dataType: 'JSON'
-      }).then((lobby) => {
-        console.log("Lobby on return:", lobby);
-        if(lobby) {
-          getGameState(1);    //Hardcoded
-          clearLobbyTimer();
-        }
-      });
-    }, 1000);
+    lobbyTimer = setInterval(checkLobby, 1000);
   };
 
   const clearLobbyTimer = function() {
     clearInterval(lobbyTimer);
+  };
+
+  const setGameTimer = function() {
+    gameTimer = setInterval(getGameState, 1000);
+  };
+
+  const clearGameTimer = function() {
+    clearInterval(gameTimer);
+  };
+
+  const checkLobby = function() {
+    $.ajax({
+      method: "GET",
+      url: "/cards/games/1/lobby",   // Replace with gameId
+      dataType: 'JSON'
+    }).then((lobby) => {
+      if(lobby) {
+        clearLobbyTimer();
+        setGameTimer.call(1);
+      }
+    });
   };
 
   const renderCards = function(cards) {
@@ -29,6 +40,7 @@ $(() => {
   };
 
   const confirmCard = function(event) {
+    let gameId = $('.deck').data('gameId');
     let $image = $('.play-area').find('img');
     $('.confirm').off("click", confirmCard);
     $('.user-hand').off("click", clickCard);
@@ -36,10 +48,14 @@ $(() => {
 
     $.ajax({
       method: "POST",
-      url: "/cards/games/1",      // Replace with gameId
+      url: `/cards/games/${gameId}`,      // Replace with gameId
       data: $.param({ card: $image[0].className })
     }).then((result) => {
+      if(!result) {
+        return;
+      } else {
       console.log("The result from confirm:", result);
+      }
     });
   };
 
@@ -57,40 +73,58 @@ $(() => {
   };
 
   $('.join-lobby').click(function() {
+    let gameId = $('.deck').data('gameId');
     $.ajax({
       method: "POST",
-      url: "/cards/games/join/1",   // Replace with gameNameId
+      url: `/cards/games/join/${gameId}`,   // Replace with gameNameId
       data: $.param({userId: 2, gameNameId: 1})   // Replace with gameNameId and userId
-    }).then(() => {
-      console.log("Done joining lobby");
+    }).then((res) => {
+      if(res === 404) {
+        return;
+      }
+      setLobbyTimer();
     });
-    setLobbyTimer();
   });
 
 
-const getGameState = function(gameId) {
+const getGameState = function() {
+  let gameId = $('.deck').data('gameId');
+
   $.ajax({
     method: "GET",
     url: `/cards/games/${gameId}`   // Replace with gameId
   }).done((state) => {
-    if(!state) {
+    let $hand = $('.user-hand');
+    if(!state || $hand.data('turn') === state.turn) {
       return;
     }
+    console.log("Turn:", state.turn);
+    console.log("Scores:",  state.score);
 
-    let $hand = $('.user-hand');
-    if($hand.data('turn') !== state.turn) {
-      $('.confirm').parent().find('img').remove();
+    if(state.turn !== 0) {
+      if(state.turn === 13) {
+        $('.deck-display').children().first().remove();
+      }
       $hand.data('turn', state.turn);
-    }
-    console.log("Respose from GET request to game:", state.user); // Replace with userId
-    renderCards(state.user);    // Replace with userId
-    $('.deck-flipped').remove();
-    $('.deck-display').append(`<img class="deck-flipped" src="/images/cards/${state.deck}.png" height="70" width="50">`);
+      $hand.empty();
+      $('.play-area').empty();
 
-    $('.user-hand').click(clickCard);
+      renderCards(state.user);    // Replace with userId
+      $('.deck-flipped').remove();
+      $('.deck-display').append(`<img class="deck-flipped" src="/images/cards/${state.deck}.png" height="70" width="50">`);
+      $('.user-hand').click(clickCard);
+    } else {
+      clearGameTimer();
+
+      if(state.score.user >= state.score.opp) {
+        $('.play-area').append($(`<p>You Win!</p>`));
+      } else {
+        $('.play-area').append($(`<p>Better Luck Next Time!</p>`));
+      }
+    }
   });
 };
 
-getGameState(1);  //Hardcoded check
+setLobbyTimer();
 
 });

@@ -1,3 +1,20 @@
+$header-background: #A5D6A7;
+$nav-color: #607D8B;
+$text-color: white;
+$table-color: #2E7D32;
+$borders: 1px solid grey;
+$radius: 3px;
+
+main {
+  border: $borders;
+  border-radius: $radius;
+
+}
+
+nav {
+  width: 100%;
+  background-color: $nav-color;
+}
 body {
   background-color: #EEE;
 

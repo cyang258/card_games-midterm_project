@@ -6,23 +6,29 @@ const gameHelpers = require("../lib/util/game_helpers");
 
 module.exports = (DataHelpers) => {
 
-  // Users pages
-  router.get("/users/:id", (req, res) => {
+  router.get("/", (req, res) => {
     let userId = req.session.userId;
     let templateVars = { userId };
-    console.log('Userid on render:', userId);
+
+    res.render("index", templateVars);
+  });
+
+  // Users pages
+  router.get("/users", (req, res) => {
+    let userId = req.session.userId;
+    let templateVars = { userId };
+
     res.render("users", templateVars);
   });
 
   // User Login
   router.post("/login", (req, res) => {
     let { username, password } = req.body;
-    console.log('login', username);
+
     DataHelpers.getUser(username, password).then((result) => {
       if(!result) {
-        res.status(404).send();
+        res.status(404).send("Could not find user");
       } else {
-        console.log("Result of login query:", result);
         req.session.userId = result[0].id;
         let templateVars = { userId: result[0].id };
 
@@ -41,43 +47,64 @@ module.exports = (DataHelpers) => {
 
   // Check if still in lobby
   router.get("/games/:id/lobby", (req, res) => {
-    let gameId = req.params.id;
-    DataHelpers.getLobby(gameId, 2).then((results) => {
-      console.log("Results from check lobby:", results);
-      if(results[0]) {
-        res.json(results[0]);
-      } else {
-        res.json(null);
-      }
-    });
+    let gameNameId = req.params.id;
+    let userId = req.session.userId;
+
+    if(userId) {
+      DataHelpers.getLobby(gameNameId, userId).then((results) => {
+        if(results[0]) {
+          res.json(results[0]);
+        } else {
+          res.json(null);
+        }
+      });
+    } else {
+      res.status(404).send("Cannot check lobby while not logged in");
+    }
   });
 
   // Join lobby for a game
   router.post("/games/join/:id", (req, res) => {
     let gameNameId = req.params.id;
-    DataHelpers.addUserToLobby(2, gameNameId).then((lobby) => {
-      if(lobby.length > 1) {
-        DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
-      }
-      res.json(lobby);
-    });
+    let userId = req.session.userId;
+
+    if(userId) {
+      DataHelpers.addUserToLobby(userId, gameNameId).then((lobby) => {
+        if(lobby.length > 1) {
+          DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
+        }
+        res.json(lobby);
+      });
+    } else {
+      res.status(404).send("Cannot join a lobby while not logged in");
+    }
   });
 
   // Game route for updating cards
   router.get("/games/:id", (req, res) => {
     let userId = req.session.userId;
+
     if(userId) {
       DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
         if(!gameState){
-          res.json({ null: true });
+          res.json(null);
         } else {
           userId = userId.toString();
-          console.log("Game State:", gameState);
+          let users = Object.keys(gameState.scores);
+          users.splice(users.indexOf(userId), 1);
+          let opp = users[0];
+
           let state = {
-            deck: gameHelpers.convertCardToString(gameState.hands.deck[0]),
             user: gameHelpers.convertAllCards(gameState.hands[userId]),
-            turn: gameState.turn
+            turn: gameState.turn,
+            score: { user: gameState.scores[userId], opp: gameState.scores[opp] }
           };
+          if(gameState.hands.deck.length === 0) {
+            state.deck = '';
+          } else {
+            state.deck = gameHelpers.convertCardToString(gameState.hands.deck[0]);
+          }
+
           res.json(state);
         }
       });
@@ -92,19 +119,29 @@ module.exports = (DataHelpers) => {
     let gameId = req.params.id;
     let userId = req.session.userId;
 
-    DataHelpers.getGameState(gameId)
+    DataHelpers.getGameState(gameId, userId)
     .then((state) => {
-      state.played.push({ userId, card });
-      // let index = state.turn.indexOf(userId);
-      // state.turn.splice(index, 1);
-
-      return DataHelpers.updateGameState(gameId, state);
+      if(state.played.find((elm) => { return elm.userId === userId; })) {
+        return new Promise( (resolve, reject) => {
+          reject(state);
+        });
+      } else {
+        state.played.push({ userId, card });
+        // let index = state.turn.indexOf(userId);
+        // state.turn.splice(index, 1);
+        return DataHelpers.updateGameState(gameId, state);
+      }
     }).then((state)=> {
       let newState = state;
-      if(state[0].played.length > 0) {      // Replace with number of players
+      console.log("Game state before trying to call advance game:", state);
+      console.log("Length of played cards", state[0].played.length > 1);
+      if(state[0].played.length > 1) {      // Replace with number of players
+        console.log("Calling advanceGame function to keep playing");
         newState = gameHelpers.advanceGame(1, state[0]);
       }
       return DataHelpers.updateGameState(gameId, newState);
+    }).catch((state) => {
+      return state;
     }).then((state) => {
       res.json(state);
     });

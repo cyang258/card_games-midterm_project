@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 
-const PORT          = process.env.PORT || 8080;
+const PORT          = process.env.PORT || 9090;
 const ENV           = process.env.ENV || "development";
 const express       = require("express");
 const bodyParser    = require("body-parser");
@@ -29,12 +29,12 @@ app.use(cookieSession({
 }));
 
 // Testing with other users
-// ngrok.connect(9090, function (err, url) {
-//   if(err) {
-//     console.log(err);
-//   };
-//   console.log(url);
-// });
+ngrok.connect(9090, function (err, url) {
+  if(err) {
+    console.log(err);
+  };
+  console.log(url);
+});
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
@@ -67,58 +67,63 @@ app.get("/", (req, res) => {
 });
 
 //Set up socket.io connection
-const server      = require("http").createServer(app);
-const io          = require("socket.io").listen(server);
+// const server      = require("http").createServer(app);
+// const io          = require("socket.io").listen(server);
 
-var users = [];
-var connections = [];
-var rooms = [];
-
-
-
-io.on('connection', function(socket) {
-
-  //create room
-  socket.on("createRoom", function(room){
-
-      socket.join(room);
-      io.of('/').in(room).clients((error, clients) => {
-         if (error) throw error;
-         console.log(clients);
-      });
-
-  })
-  console.log(io.sockets.adapter.rooms);
-
-  //join a room
-  socket.on("join_A_Room", function(roomNumber){
-      socket.join(roomNumber);
-      console.log(io.sockets.adapter.rooms[roomNumber].length)
-      io.of('/').in(roomNumber).clients((error, clients) => {
-      if (error) throw error;
-        console.log(clients);
-      });
-  })
+// var users = [];
+// var connections = [];
+// var rooms = [];
 
 
-  //How many people connected
-  connections.push(socket);
-  console.log('Connected: %s sockets connected', connections.length)
 
-  // Disconnect
-  socket.on('disconnect', function(data){
-    connections.splice(connections.indexOf(socket), 1);
-    console.log('Disconnected: %s sockets connected', connections.length)
-  })
+// io.on('connection', function(socket) {
 
-  socket.on('send message', function(data){
-    console.log(data);
-    io.emit('new message', data);
-  })
-})
+//   // if(req.session.userId) {
+//   //   io.engine.generateId = (req) => {
+//   //     return "custom:id:" + req.session.userId;
+//   //   };
+//   // }
+//   //create room
+//   socket.on("createRoom", function(room){
+
+//       socket.join(room);
+//       io.of('/').in(room).clients((error, clients) => {
+//          if (error) throw error;
+//          console.log(clients);
+//       });
+
+//   })
+//   console.log(io.sockets.adapter.rooms);
+
+//   //join a room
+//   socket.on("join_A_Room", function(roomNumber){
+//       socket.join(roomNumber);
+//       console.log(io.sockets.adapter.rooms[roomNumber].length)
+//       io.of('/').in(roomNumber).clients((error, clients) => {
+//       if (error) throw error;
+//         console.log(clients);
+//       });
+//   })
 
 
-server.listen(PORT, () => {
+//   //How many people connected
+//   connections.push(socket);
+//   console.log('Connected: %s sockets connected', connections.length)
+
+//   // Disconnect
+//   socket.on('disconnect', function(data){
+//     connections.splice(connections.indexOf(socket), 1);
+//     console.log('Disconnected: %s sockets connected', connections.length)
+//   })
+
+//   socket.on('send message', function(data){
+//     console.log(data);
+//     io.emit('new message', data);
+//   })
+// })
+
+
+app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
 });
 
