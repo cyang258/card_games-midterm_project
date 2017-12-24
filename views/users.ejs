@@ -20,15 +20,17 @@
     <%- include partials/_header.ejs %>
 
     <main>
-      <nav>
+      <nav class="play-games">
         <button class="show-games">Choose Game</button>
         <button class="join-lobby goofspiel" data-game-name-id="1">Play Goofspiel</button>
         <button class="join-lobby hearts" data-game-name-id="2">Play Hearts</button>
       </nav>
-      <h3>Games</h3>
-      <div class="games"></div>
 
-      <figure>
+      <nav class="games">
+
+      </nav>
+
+      <figure class="game-id">
         <header>
           <h3>Opponent <span class="opponent-score"></span></h3>
         </header>

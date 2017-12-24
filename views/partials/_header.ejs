@@ -1,8 +1,8 @@
 <nav>
   <h1>Goofspiel</h1>
   <div>
-    <% if(userId) { %>
-      <p><%= userId %></p>
+    <% if(username) { %>
+      <h4><%= username %></h4>
       <form action="/cards/logout" method="POST">
         <button class="logout">Logout</button>
       </form>
@@ -27,14 +27,14 @@
         <p style="font-size:4em; margin-left:0px;">Card Games</p>
       </div>
       <div class="col-sm-4 align-right user-forms">
-        <% if(userId) { %>
-          <p><%= userId %></p>
+        < if(userId) { %>
+          <p>< userId %></p>
           <form class="form-vertical logout" action="/cards/logout" method="POST">
             <div class="form-group">
               <button class="btn btn-primary text-center logout">Logout</button>
             </div>
           </form>
-        <% } else { %>
+        < } else { %>
           <form class="form-vertical login" action="/cards/login" method="POST">
             <div class="form-group">
               <input type="text" name="username" placeholder="Email/Username">
@@ -51,7 +51,7 @@
               <button class="btn btn-primary text-center register">Register</button>
             </div>
           </form>
-        <% } %>
+        < } %>
       </div>
     </div>
   </div>

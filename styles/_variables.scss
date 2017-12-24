@@ -1,0 +1,41 @@
+// Backgrounds
+$header-background: #A5D6A7;
+$playarea-color: #558B2F;
+$nav-color: #263238;
+$table-color: #795548;
+$card-color: #2E7D32;
+
+// Text
+$text-color: lightgrey;
+
+// Borders
+$borders: 1px solid grey;
+$radius: 3px;
+
+@mixin borders {
+  border-radius: 3px;
+  border: 1px solid #1B5E20;
+}
+
+@mixin column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@mixin row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+@mixin nav-input {
+  margin: 0.2vw;
+  height: 30px;
+}
+
+@mixin clear {
+  content: "";
+  clear: both;
+  display: table;
+}

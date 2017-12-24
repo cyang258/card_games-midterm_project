@@ -4,28 +4,50 @@ const express     = require('express');
 const router      = express.Router();
 const gameHelpers = require("../lib/util/game_helpers");
 
+
 module.exports = (DataHelpers) => {
 
+  // Cards homepage
   router.get("/", (req, res) => {
     let userId = req.session.userId;
-    let templateVars = { userId };
+    let templateVars = { username: null };
 
-    res.render("index", templateVars);
+    if(!userId) {
+      res.render("index", templateVars);
+    } else {
+      DataHelpers.getUserById(userId)
+      .then((user) => {
+        let username = user[0].username;
+        templateVars.username = username;
+
+        res.render("index", templateVars);
+      });
+    }
   });
 
   // Users pages
   router.get("/users", (req, res) => {
     let userId = req.session.userId;
-    let templateVars = { userId };
+    let templateVars = { username: null };
 
-    res.render("users", templateVars);
+    if(!userId) {
+      res.render("users", templateVars);
+    } else {
+      DataHelpers.getUserById(userId)
+      .then((user) => {
+        let username = user[0].username;
+        templateVars.username = username;
+
+        res.render("users", templateVars);
+      });
+    }
   });
 
   // User Login
   router.post("/login", (req, res) => {
     let { username, password } = req.body;
 
-    DataHelpers.getUser(username, password).then((result) => {
+    DataHelpers.getUserByLogin(username, password).then((result) => {
       if(!result) {
         res.status(404).send("Could not find user");
       } else {
@@ -51,16 +73,11 @@ module.exports = (DataHelpers) => {
     let userId = req.session.userId;
 
     if(userId) {
-      DataHelpers.getLobby(gameNameId, userId)
-      .then((results) => {
-        console.log("Find lobby without gameid:", results);
-        if (results.find((lobby) => { return lobby['game_id']; })) {
-          res.json(results[0]);
-        } else if (results[0]) {
-          res.json({ null: true });
-        } else {
-          res.json(null);
-        }
+      DataHelpers.getUserGames(userId)
+      .then((games) => {
+        let activeGames = games.filter((game) => { return !game.end_date && game.start_date; });
+        let lobbyGames = games.filter((game) => { return !game.start_date; });
+        res.json({ activeGames, lobbyGames });
       });
     } else {
       res.json(null);
@@ -71,21 +88,24 @@ module.exports = (DataHelpers) => {
   router.post("/games/join/:id", (req, res) => {
     let gameNameId = req.params.id;
     let userId = req.session.userId;
+    console.log("User id on post:", userId, "Game name id:", gameNameId);
 
     if(userId) {
-      DataHelpers.getLobby(gameNameId, userId)
-      .then((results) => {
-        console.log("Results from getLobby:", results);
-        if(results[0]) {
-          res.json(null);
+      DataHelpers.getOpenGames(gameNameId, userId)
+      .then((games) => {
+        console.log("Games returned from get open games:", games);
+        if(!games[0]) {
+          console.log("Creating...");
+          return DataHelpers.createGame(gameNameId);
         } else {
-          DataHelpers.addUserToLobby(userId, gameNameId).then((lobby) => {
-            if(lobby.length > 1) {
-              DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
-            }
-            res.json(lobby);
-          });
+          console.log("Joining...");
+          return DataHelpers.addUserToGame(games[0].game_id, userId);
         }
+      }).then((gameId) => {
+        console.log("Game id returned from either create or join:", gameId);
+        return DataHelpers.addUserGame(gameId[0], userId);
+      }).then((gameId) => {
+        res.json(gameId);
       });
     } else {
       res.status(404).send("Cannot join a lobby while not logged in");
@@ -95,9 +115,10 @@ module.exports = (DataHelpers) => {
   // Game route for updating cards
   router.get("/games/:id", (req, res) => {
     let userId = req.session.userId;
+    let gameNameId = req.params.id;
 
     if(userId) {
-      DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
+      DataHelpers.getGameState(gameNameId).then((gameState) => {     // Hardcoded
         if(!gameState){
           res.json(null);
         } else {
@@ -145,10 +166,7 @@ module.exports = (DataHelpers) => {
       }
     }).then((state)=> {
       let newState = state;
-      console.log("Game state before trying to call advance game:", state);
-      console.log("Length of played cards", state[0].played.length > 1);
       if(state[0].played.length > 1) {      // Replace with number of players
-        console.log("Calling advanceGame function to keep playing");
         newState = gameHelpers.advanceGame(1, state[0]);
       }
       return DataHelpers.updateGameState(gameId, newState);
