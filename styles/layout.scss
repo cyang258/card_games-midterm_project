@@ -6,7 +6,7 @@ $table-color: #795548;
 $card-color: #2E7D32;
 
 // Text
-$text-color: white;
+$text-color: lightgrey;
 
 // Borders
 $borders: 1px solid grey;
@@ -26,71 +26,104 @@ $radius: 3px;
 @mixin row {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin nav-input {
+  margin: 0.2vw;
+  height: 30px;
+}
+
+body {
+  @include column;
+  background-color: lightgrey;
+  color: $text-color;
+
+  > nav {
+    @include row;
+    align-items: flex-end;
+    width: 100%;
+    height: 150px;
+    padding: 1vw;
+    background-color: $nav-color;
+
+    div {
+      @include row;
+    }
+  }
+}
+
+
+input {
+  border-radius: 3px;
+  border: 1px solid grey;
+  @include nav-input;
+}
+
+button {
+  @include nav-input;
+  background-color: lightgrey;
+  border: 1px solid grey;
+  border-radius: 3px;
+}
+
+button:hover {
+  background-color: white;
 }
 
 main {
+  width: 95vw;
+  margin: 2vw;
   border: $borders;
   border-radius: $radius;
-  color: $text-color;
   background-color: #3E2723;
 
   nav {
-    width: 100vw;
+    width: 100%;
     padding: 1vw;
     background-color: $nav-color;
   }
+}
 
-  button {
-    background-color: lightgrey;
-    border: 1px solid grey;
-    border-radius: 3px;
+figure {
+  @include column;
+  width: 94%;
+  margin: 1vw 3%;
+  background-color: $table-color;
+  @include borders;
+
+  img {
+    height: 9.8vw;
+    width: 7vw;
   }
+}
 
-  button:hover {
-    background-color: white;
-  }
+header {
+  width: 80%;
+  height: 80px;
+  margin: 1vw;
+  background-color: $playarea-color;
+  @include borders;
+}
 
-  figure {
-    @include column;
-    width: 90vw;
-    margin: 1vw 3vw;
-    background-color: $table-color;
-    @include borders;
+section {
+  @include column;
+  background-color: $card-color;
+  @include borders;
 
-    img {
-      height: 9.8vw;
-      width: 7vw;
-    }
-  }
-
-  header {
-    width: 80%;
-    height: 80px;
+  object {
+    @include row;
+    width: 25vw;
     margin: 1vw;
-    background-color: $playarea-color;
     @include borders;
   }
+}
 
-  section {
-    @include column;
-    background-color: $card-color;
-    @include borders;
-
-    object {
-      @include row;
-      width: 25vw;
-      margin: 1vw;
-      @include borders;
-    }
-  }
-
-  footer {
-    height: 80px;
-    width: 80%;
-    margin: 1vw;
-    background-color: $playarea-color;
-    @include borders;
-  }
+footer {
+  height: 80px;
+  width: 80%;
+  margin: 1vw;
+  background-color: $playarea-color;
+  @include borders;
 }
 

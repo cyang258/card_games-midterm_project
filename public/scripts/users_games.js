@@ -19,6 +19,11 @@ $(() => {
     clearInterval(gameTimer);
   };
 
+  const updateScore = function(scores) {
+    $('.user-score').text(scores.user);
+    $('.opponent-score').text(scores.opp);
+  };
+
   const checkLobby = function() {
     $.ajax({
       method: "GET",
@@ -27,14 +32,14 @@ $(() => {
     }).then((lobby) => {
       if(lobby) {
         clearLobbyTimer();
-        setGameTimer.call(1);
+        setGameTimer();
       }
     });
   };
 
   const renderCards = function(cards) {
     cards.forEach( (card) => {
-      let $cardImage = $(`<img class="${card}" src="/images/cards/${card}.png" height="70" width="50">`);
+      let $cardImage = $(`<img class="${card}" src="/images/cards/${card}.png">`);
       $('.user-hand').append($cardImage);
     });
   };
@@ -102,6 +107,7 @@ const getGameState = function() {
     console.log("Scores:",  state.score);
 
     if(state.turn !== 0) {
+      updateScore(state.score);
       if(state.turn === 13) {
         $('.deck-display').children().first().remove();
       }
@@ -111,7 +117,7 @@ const getGameState = function() {
 
       renderCards(state.user);    // Replace with userId
       $('.deck-flipped').remove();
-      $('.deck-display').append(`<img class="deck-flipped" src="/images/cards/${state.deck}.png" height="70" width="50">`);
+      $('.deck-display').append(`<img class="deck-flipped" src="/images/cards/${state.deck}.png">`);
       $('.user-hand').click(clickCard);
     } else {
       clearGameTimer();

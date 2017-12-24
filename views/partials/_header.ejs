@@ -1,5 +1,26 @@
+<nav>
+  <h1>Goofspiel</h1>
+  <div>
+    <% if(userId) { %>
+      <p><%= userId %></p>
+      <form action="/cards/logout" method="POST">
+        <button class="logout">Logout</button>
+      </form>
+    <% } else { %>
+      <form class="login" action="/cards/login" method="POST">
+        <input type="text" name="username" placeholder="Email/Username">
+        <input type="password" name="password" placeholder="Password">
+        <button class="login">Login</button>
+      </form>
+      <form>
+        <button class="register">Register</button>
+      </form>
+    <% } %>
+  </div>
+</nav>
 
-<div class="jumbotron jumbotron-fluid" style="background-color: #A5D6A7; color: white;">
+
+<!-- <div class="jumbotron jumbotron-fluid" style="background-color: #A5D6A7; color: white;">
   <div class="container">
     <div class="row">
       <div class="col-sm-8">
@@ -34,7 +55,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <script>
   // $(() => {
