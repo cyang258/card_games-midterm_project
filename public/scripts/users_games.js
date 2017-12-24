@@ -30,10 +30,10 @@ $(() => {
       url: "/cards/games/1/lobby",   // Replace with gameId
       dataType: 'JSON'
     }).then((lobby) => {
-      if(lobby) {
-        clearLobbyTimer();
+      if(lobby && !lobby.null) {
         setGameTimer();
       }
+      clearLobbyTimer();
     });
   };
 
@@ -77,12 +77,13 @@ $(() => {
     $('.play-area').append($card);
   };
 
-  $('.join-lobby').click(function() {
-    let gameId = $('.deck').data('gameId');
+  $('.join-lobby').click(function(event) {
+    let gameNameId = $(this).data('game-name-id');
+    console.log("This on join:", this);
     $.ajax({
       method: "POST",
-      url: `/cards/games/join/${gameId}`,   // Replace with gameNameId
-      data: $.param({userId: 2, gameNameId: 1})   // Replace with gameNameId and userId
+      url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
+      data: $.param({gameNameId: 1})   // Replace with gameNameId and userId
     }).then((res) => {
       if(res === 404) {
         return;

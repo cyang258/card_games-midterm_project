@@ -51,15 +51,19 @@ module.exports = (DataHelpers) => {
     let userId = req.session.userId;
 
     if(userId) {
-      DataHelpers.getLobby(gameNameId, userId).then((results) => {
-        if(results[0]) {
+      DataHelpers.getLobby(gameNameId, userId)
+      .then((results) => {
+        console.log("Find lobby without gameid:", results);
+        if (results.find((lobby) => { return lobby['game_id']; })) {
           res.json(results[0]);
+        } else if (results[0]) {
+          res.json({ null: true });
         } else {
           res.json(null);
         }
       });
     } else {
-      res.status(404).send("Cannot check lobby while not logged in");
+      res.json(null);
     }
   });
 
@@ -69,11 +73,19 @@ module.exports = (DataHelpers) => {
     let userId = req.session.userId;
 
     if(userId) {
-      DataHelpers.addUserToLobby(userId, gameNameId).then((lobby) => {
-        if(lobby.length > 1) {
-          DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
+      DataHelpers.getLobby(gameNameId, userId)
+      .then((results) => {
+        console.log("Results from getLobby:", results);
+        if(results[0]) {
+          res.json(null);
+        } else {
+          DataHelpers.addUserToLobby(userId, gameNameId).then((lobby) => {
+            if(lobby.length > 1) {
+              DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
+            }
+            res.json(lobby);
+          });
         }
-        res.json(lobby);
       });
     } else {
       res.status(404).send("Cannot join a lobby while not logged in");

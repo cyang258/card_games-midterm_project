@@ -34,6 +34,12 @@ $radius: 3px;
   height: 30px;
 }
 
+@mixin clear {
+  content: "";
+  clear: both;
+  display: table;
+}
+
 body {
   @include column;
   background-color: lightgrey;
@@ -77,6 +83,7 @@ main {
   border: $borders;
   border-radius: $radius;
   background-color: #3E2723;
+  @include clear;
 
   nav {
     width: 100%;
@@ -86,6 +93,7 @@ main {
 }
 
 figure {
+  @include clear;
   @include column;
   width: 94%;
   margin: 1vw 3%;
@@ -93,8 +101,8 @@ figure {
   @include borders;
 
   img {
-    height: 9.8vw;
-    width: 7vw;
+    height: 7vw;
+    width: 5vw;
   }
 }
 
@@ -120,10 +128,16 @@ section {
 }
 
 footer {
+  @include row;
   height: 80px;
   width: 80%;
   margin: 1vw;
   background-color: $playarea-color;
   @include borders;
+  @include clear;
+
+  object {
+    @include clear;
+  }
 }
 
