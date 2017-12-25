@@ -77,7 +77,10 @@ module.exports = (DataHelpers) => {
       .then((games) => {
         let activeGames = games.filter((game) => { return !game.end_date && game.start_date; });
         let lobbyGames = games.filter((game) => { return !game.start_date; });
-        res.json({ activeGames, lobbyGames });
+
+        let censoredGames = gameHelpers.censorState(activeGames, userId);
+
+        res.json({ censoredGames, lobbyGames, userId });
       });
     } else {
       res.json(null);
@@ -88,21 +91,23 @@ module.exports = (DataHelpers) => {
   router.post("/games/join/:id", (req, res) => {
     let gameNameId = req.params.id;
     let userId = req.session.userId;
-    console.log("User id on post:", userId, "Game name id:", gameNameId);
 
     if(userId) {
       DataHelpers.getOpenGames(gameNameId, userId)
       .then((games) => {
-        console.log("Games returned from get open games:", games);
         if(!games[0]) {
-          console.log("Creating...");
           return DataHelpers.createGame(gameNameId);
         } else {
-          console.log("Joining...");
-          return DataHelpers.addUserToGame(games[0].game_id, userId);
+          return DataHelpers.getUsersInGame(games[0].id)
+            .then((users) => {
+              users.push({ user_id: userId.toString() });
+              let state = gameHelpers.makeState(users);
+              console.log("Users before start game:", users);
+              console.log("State before start game:", state);
+              return DataHelpers.startGame(games[0].id, state);
+          });
         }
       }).then((gameId) => {
-        console.log("Game id returned from either create or join:", gameId);
         return DataHelpers.addUserGame(gameId[0], userId);
       }).then((gameId) => {
         res.json(gameId);
@@ -152,26 +157,25 @@ module.exports = (DataHelpers) => {
     let gameId = req.params.id;
     let userId = req.session.userId;
 
+    console.log("Card after confirm:", card, "game id:", gameId, "userId:", userId);
+
     DataHelpers.getGameState(gameId, userId)
     .then((state) => {
+      console.log("State after get state", state);
       if(state.played.find((elm) => { return elm.userId === userId; })) {
-        return new Promise( (resolve, reject) => {
-          reject(state);
-        });
+        res.json(null);
       } else {
         state.played.push({ userId, card });
-        // let index = state.turn.indexOf(userId);
-        // state.turn.splice(index, 1);
         return DataHelpers.updateGameState(gameId, state);
       }
     }).then((state)=> {
+      console.log("State after update:", state);
       let newState = state;
       if(state[0].played.length > 1) {      // Replace with number of players
         newState = gameHelpers.advanceGame(1, state[0]);
       }
+      console.log("State after advance game:", newState);
       return DataHelpers.updateGameState(gameId, newState);
-    }).catch((state) => {
-      return state;
     }).then((state) => {
       res.json(state);
     });
