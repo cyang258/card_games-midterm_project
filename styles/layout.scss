@@ -57,12 +57,16 @@ main {
     background-color: $nav-color;
     height: 40px;
 
+    .active-tab {
+      background-color: #3E2723;
+    }
+
     button {
       color: lightgrey;
       margin: 0px;
       height: 100%;
-      width: 10vw;
-      background-color: #3E2723;
+      width: 20%;
+      background-color: #795548;
       border-top: 1px solid #795548;
       border-left: 1px solid #795548;
       border-right: 1px solid #795548;

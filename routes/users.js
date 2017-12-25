@@ -102,8 +102,6 @@ module.exports = (DataHelpers) => {
             .then((users) => {
               users.push({ user_id: userId.toString() });
               let state = gameHelpers.makeState(users);
-              console.log("Users before start game:", users);
-              console.log("State before start game:", state);
               return DataHelpers.startGame(games[0].id, state);
           });
         }
@@ -157,11 +155,8 @@ module.exports = (DataHelpers) => {
     let gameId = req.params.id;
     let userId = req.session.userId;
 
-    console.log("Card after confirm:", card, "game id:", gameId, "userId:", userId);
-
     DataHelpers.getGameState(gameId, userId)
     .then((state) => {
-      console.log("State after get state", state);
       if(state.played.find((elm) => { return elm.userId === userId; })) {
         res.json(null);
       } else {
@@ -169,12 +164,10 @@ module.exports = (DataHelpers) => {
         return DataHelpers.updateGameState(gameId, state);
       }
     }).then((state)=> {
-      console.log("State after update:", state);
       let newState = state;
       if(state[0].played.length > 1) {      // Replace with number of players
         newState = gameHelpers.advanceGame(1, state[0]);
       }
-      console.log("State after advance game:", newState);
       return DataHelpers.updateGameState(gameId, newState);
     }).then((state) => {
       res.json(state);

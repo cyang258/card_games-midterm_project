@@ -30,6 +30,21 @@ $(() => {
   // Update game tabs for turn
   const updateTabs = function(games, userId) {
     let $buttons = $(".games").find("button");
+    console.log("The buttons:", $buttons[0]);
+
+    if(!$buttons[0]) {
+      games.forEach((game) => {
+        let $button = $(
+          `<button class="game-tab">New Game
+            <span class="close-tab">x</span>
+          </button>`).data("game-name-id", game.game_name_id);
+        $button.data("game-id", game.id);
+        $(".games").append($button);
+      });
+      $(".games").find("button").first().addClass("active-tab");
+    }
+
+    $(".game-tab").click(clickGameTab);
 
     games.forEach((game) => {
       let $button = $buttons.find(`[data-game-id="${game.id}"]`);
@@ -138,58 +153,45 @@ $(() => {
 
   // Event handler for creating a game
   $(".join-lobby").click(function(event) {
-    let gameNameId = $(this).data("game-name-id");
-    let $gameTab = $(
-      `<button class="game-tab">New Game
-      <span class="close-tab">x</span>
-      </button>`).data("game-name-id", gameNameId);
-    $gameTab.addClass("active-tab");
+    if($(".game-tab").length > 4) {
+      return;
+    } else {
+      let gameNameId = $(this).data("game-name-id");
+      let $gameTab = $(
+        `<button class="game-tab">New Game
+        <span class="close-tab">x</span>
+        </button>`).data("game-name-id", gameNameId);
+      $gameTab.addClass("active-tab");
 
-    let $newTab = $(".games").append($gameTab);
+      let $newTab = $(".games").append($gameTab);
 
-    $.ajax({
-      method: "POST",
-      url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
-      data: $.param({gameNameId: 1})   // Replace with gameNameId and userId
-    }).then((res) => {
-      console.log("Response from join/create game:", res);
-      if(res === 404) {
-        return;
-      }
-      $gameTab.data("game-id", res[0]);
+      $.ajax({
+        method: "POST",
+        url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
+        data: $.param({gameNameId: 1})   // Replace with gameNameId and userId
+      }).then((res) => {
+        console.log("Response from join/create game:", res);
+        if(res === 404) {
+          return;
+        }
+        $gameTab.data("game-id", res[0]);
+        $(".game-tab").off("click", clickGameTab);
+        $(".game-tab").click(clickGameTab);
 
-      // $(".game-tab").off("click", clickGameTab);
-      // clearGameTimer();
-      // setGameTimer();
-    });
+        // $(".game-tab").off("click", clickGameTab);
+        // clearGameTimer();
+        // setGameTimer();
+      });
+    }
   });
 
   const clickGameTab = function(event) {
-    let gameNameId = $(this).data("game-name-id");
-    let $gameTab = $(
-      `<button class="game-tab">New Game
-      <span class="close-tab">x</span>
-      </button>`).data("game-name-id", gameNameId);
-
-    let $newTab = $(".games").append($gameTab);
-
-    $.ajax({
-      method: "POST",
-      url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
-      data: $.param({gameNameId: 1})   // Replace with gameNameId and userId
-    }).then((res) => {
-      console.log("Response from join/create game:", res);
-      if(res === 404) {
-        return;
-      }
-      $newTab.data("game-id", res[0]);
-      clearGameTimer();
-      setGameTimer();
-    });
+    $(".active-tab").removeClass("active-tab");
+    $(this).addClass("active-tab");
   };
 
   // Event handler for game tabs
-  $(".game-tab").click(clickGameTab);
+
 
 
 
