@@ -25,8 +25,8 @@ $(() => {
   const createNewGame = function(gameId) {
     let $table = $(
       `<figure>
-        <header>
-          <h3>Opponent <span class="opponent-score"></span></h3>
+        <header class="opponent">
+          <span class="opponent-score"></span></h3>
         </header>
 
         <section class="deck">
@@ -63,8 +63,27 @@ $(() => {
 
   // Change score elements to reflect score
   const updateScore = function(scores, userId) {
-    $(".active-table").find(".user-score").text(scores.user);
-    $(".active-table").find(".opponent-score").text(scores.opp);
+    console.log("Users scores:", scores);
+    $(".active-table .user-score").text(scores.user);
+
+    for(let opponent in scores.opp) {
+      if(opponent !== "deck") {
+        $(`.active-table .${opponent} .opponent-score`).text(scores.opp[opponent]);
+      }
+    }
+  };
+
+  const addOpponents = function(scores) {
+    console.log("adding opponents.........", scores);
+    let opps = Object.keys(scores.opp);
+    console.log("Opponents scores:", opps);
+    $(".active-table .opponent").each(function() {
+
+      console.log("Made it into the if:", Object.keys(opps)[0]);
+      $(this).addClass(opps[0]);
+      $(this).addClass("active-opp");
+      opps.shift();
+    });
   };
 
   // Display a users hand
@@ -137,7 +156,7 @@ $(() => {
 
   // Update to the beginning of the next round
   const updateGame = function(state) {
-    console.log("updating game.................")
+    console.log("updating game.................");
     // Scores
     updateScore(state.scores);
     if(state.turn === 13) {
@@ -190,13 +209,13 @@ $(() => {
         updateTabs(allGames, games.userId);
 
         if(games.censoredGames[0]) {
-
           let savedTurn = $(".active-tab").data("turn");
           let gameId = $(".active-tab").data("game-id");
           let game = games.censoredGames.find((game) => { return game.id === gameId; });
-          console.log("Games being compared:", game);
-          console.log("User hand :", $(".active-table .user-hand"));
-          console.log("User hand first element:", $(".active-table .user-hand img")[0]);
+
+          if(!$(".active-opp")[0]) {
+            addOpponents(game.state.scores);
+          }
           if(savedTurn === game.state.turn && gameId === game.id && $(".active-table .user-hand img")[0]) {
             return;
           } else if(game.state.end_date && gameId === game.id) {
