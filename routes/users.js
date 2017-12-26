@@ -5,6 +5,8 @@ const router      = express.Router();
 const gameHelpers = require("../lib/util/game_helpers");
 
 
+
+
 module.exports = (DataHelpers) => {
 
   // Cards homepage
@@ -157,18 +159,20 @@ module.exports = (DataHelpers) => {
 
     DataHelpers.getGameState(gameId, userId)
     .then((state) => {
+      console.log("STate from played card:", state);
       if(state.played.find((elm) => { return elm.userId === userId; })) {
         res.json(null);
       } else {
         state.played.push({ userId, card });
-        return DataHelpers.updateGameState(gameId, state);
+        console.log("State after pushed card:", state);
+        let newState = state;
+        console.log("State after reassign:", state);
+
+        if(state.played.length > 1) {      // Replace with number of players
+          newState = gameHelpers.advanceGame(1, state);
+        }
+        return DataHelpers.updateGameState(gameId, newState);
       }
-    }).then((state)=> {
-      let newState = state;
-      if(state[0].played.length > 1) {      // Replace with number of players
-        newState = gameHelpers.advanceGame(1, state[0]);
-      }
-      return DataHelpers.updateGameState(gameId, newState);
     }).then((state) => {
       res.json(state);
     });

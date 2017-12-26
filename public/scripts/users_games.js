@@ -21,7 +21,6 @@ $(() => {
     });
   };
 
-
   // Makes a new table and assigns the appropriate gameId
   const createNewGame = function(gameId) {
     let $table = $(
@@ -70,7 +69,7 @@ $(() => {
 
   // Display a users hand
   const renderCards = function(cards) {
-    let $hand = $(".active-table").find(".user-hand");
+    let $hand = $(".active-table .user-hand");
     $hand.empty();
 
     cards.forEach( (card) => {
@@ -126,8 +125,11 @@ $(() => {
       let game = games.find((game) => { return game.id === gameId; });
 
       if(game.state) {
-        if(game.state.played.indexOf(userId) === -1) {
+        console.log("Game state played:", game.state.played);
+        if(!game.state.played.find((player) => { return player["userId"] == userId; })) {
           $(this).addClass("user-turn");   // Add a class to each tab where it is the users turn
+        } else {
+          $(this).removeClass("user-turn");
         }
       }
     });
@@ -135,6 +137,7 @@ $(() => {
 
   // Update to the beginning of the next round
   const updateGame = function(state) {
+    console.log("updating game.................")
     // Scores
     updateScore(state.scores);
     if(state.turn === 13) {
@@ -184,18 +187,20 @@ $(() => {
       } else {
         let censoredGames = games.censoredGames;
         let allGames = censoredGames.concat(games.lobbyGames);
-        if(!$(".games").find("button")[0]) {
-          updateTabs(allGames, games.userId);
-        }
+        updateTabs(allGames, games.userId);
+
         if(games.censoredGames[0]) {
 
           let savedTurn = $(".active-tab").data("turn");
           let gameId = $(".active-tab").data("game-id");
           let game = games.censoredGames.find((game) => { return game.id === gameId; });
           console.log("Games being compared:", game);
-          if(savedTurn === game.state.turn && gameId === game.id) {
+          console.log("User hand :", $(".active-table .user-hand"));
+          console.log("User hand first element:", $(".active-table .user-hand img")[0]);
+          if(savedTurn === game.state.turn && gameId === game.id && $(".active-table .user-hand img")[0]) {
             return;
-          } else if(game.state.turn === 0 && gameId === game.id) {
+          } else if(game.state.end_date && gameId === game.id) {
+            console.log("endGame");
             endGame(game.state);
           } else {
             updateGame(game.state, games.userId);
@@ -209,10 +214,10 @@ $(() => {
   // Confirm the card to play
   const confirmCard = function(event) {
     let gameId = $(".active-tab").data("game-id");
-    let $image = $(".active-table").find(".play-area").find("img");
-    $(".active-table").find(".confirm").off("click", confirmCard);
-    $(".active-table").find(".user-hand").off("click", clickCard);
-    $(".active-table").find(".confirm").remove();
+    let $image = $(".active-table .play-area img").first();
+    $(".active-table .confirm").off("click", confirmCard);
+    $(".active-table .user-hand").off("click", clickCard);
+    $(".active-table .confirm").remove();
 
     $.ajax({
       method: "POST",
@@ -228,16 +233,16 @@ $(() => {
 
   // Return any cards from staging area and play the clicked card
   const clickCard = function(event) {
-    if($(".active-table").find(".confirm")[0]) {
-      let $image = $("active-table").find(".confirm").parent().find("img");
-      $(".active-table").find(".user-hand").append($image);
-      $(".active-table").find(".confirm").remove();
+    if($(".active-table .confirm")[0]) {
+      let $image = $(".active-table .confirm").parent().find("img");
+      $(".active-table .user-hand").append($image);
+      $(".active-table .confirm").remove();
     }
 
     let $card = $(`.${event.target.className}`);
-    $(".active-table").find(".play-area").append($(`<button class="confirm">Confirm</button>`));
-    $(".active-table").find(".confirm").click(confirmCard);
-    $(".active-table").find(".play-area").append($card);
+    $(".active-table .play-area").append($(`<button class="confirm">Confirm</button>`));
+    $(".active-table .confirm").click(confirmCard);
+    $(".active-table .play-area").append($card);
   };
 
   // Event handler for creating a game
@@ -260,7 +265,9 @@ $(() => {
 
         $(".games").append($gameTab);               // Append new tab and table
         $(".game-table").children().hide();
-        $(".game-table").append(createNewGame(res[0]));    // New game with gameId
+        $(".active-table").removeClass("active-table");
+        $(".game-table").append(createNewGame(res[0]).addClass("active-table"));    // New game with gameId
+
 
         $(".game-tab").off("click", clickGameTab);  // Reset tab event listeners
         $(".game-tab").click(clickGameTab);
