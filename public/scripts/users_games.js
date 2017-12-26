@@ -2,7 +2,7 @@ $(() => {
   // Global interval variables
   let lobbyTimer;
   let gameTimer;
-  $(".deck").data("gameId", 1);
+  $(".deck").data("game-id", 1);
 
   // Timer to check game state
   const setGameTimer = function() {
@@ -13,75 +13,161 @@ $(() => {
     clearInterval(gameTimer);
   };
 
+  const findElementByData = function(array, data, value) {
+    array.forEach((element) => {
+      if(element.data(data, value)) {
+        return element;
+      }
+    });
+  };
+
+
+  // Makes a new table and assigns the appropriate gameId
+  const createNewGame = function(gameId) {
+    let $table = $(
+      `<figure>
+        <header>
+          <h3>Opponent <span class="opponent-score"></span></h3>
+        </header>
+
+        <section class="deck">
+          <h3>Deck</h3>
+          <object class="deck-display">
+            <img src="/images/cards/cardback.png">
+          </object>
+          <div class="play-area">
+          </div>
+        </section>
+
+        <footer>
+          <h3>Your Hand <span class="user-score"></span></h3>
+          <object class="user-hand">
+          </object>
+        </footer>
+      </figure>`
+      );
+    $table.data("game-id", gameId);
+
+    return $table;
+  };
+
+  const makeButton = function(gameNameId, gameId) {
+    let $button = $(
+          `<button class="game-tab">New Game
+            <span class="close-tab">x</span>
+          </button>`)
+      .data("game-name-id", gameNameId)
+      .data("game-id", gameId);
+
+    return $button;
+  };
+
   // Change score elements to reflect score
   const updateScore = function(scores, userId) {
-    $(".user-score").text(scores.user);
-    $(".opponent-score").text(scores.opp);
+    $(".active-table").find(".user-score").text(scores.user);
+    $(".active-table").find(".opponent-score").text(scores.opp);
   };
 
   // Display a users hand
   const renderCards = function(cards) {
+    let $hand = $(".active-table").find(".user-hand");
+    $hand.empty();
+
     cards.forEach( (card) => {
       let $cardImage = $(`<img class="${card}" src="/images/cards/${card}.png">`);
-      $(".user-hand").append($cardImage);
+      $hand.append($cardImage);
     });
+  };
+
+  // Updates to the appropriate game after clicking tab
+  const clickGameTab = function(event) {
+    $(".active-tab").removeClass("active-tab");
+
+    $(this).addClass("active-tab");       // Move active-tab class to clicked button
+    let gameId = $(this).data("game-id"); // Get gameId from button
+
+    let $newTable;
+    $(".game-table").children().each(function(index) {
+      if($(this).data("game-id") == gameId) {
+        $newTable = $(this);        // Make new table the game with the matching gameId
+      }
+    });
+    console.log("New table after click:", $newTable);
+
+    $(".game-table").children().hide(); // Hide other games and show current game
+    $(".active-table").removeClass("active-table");
+    $newTable.addClass("active-table");
+    $newTable.show();
   };
 
   // Update game tabs for turn
   const updateTabs = function(games, userId) {
     let $buttons = $(".games").find("button");
-    console.log("The buttons:", $buttons[0]);
 
     if(!$buttons[0]) {
+      $(".game-table").empty();     // If there are no tabs then make them
       games.forEach((game) => {
-        let $button = $(
-          `<button class="game-tab">New Game
-            <span class="close-tab">x</span>
-          </button>`).data("game-name-id", game.game_name_id);
-        $button.data("game-id", game.id);
+        let $button = makeButton(game.game_name_id, game.id);
         $(".games").append($button);
+
+        let $newTable = createNewGame(game.id).hide();
+        $(".game-table").append($newTable);       // Add button and table for each game
       });
-      $(".games").find("button").first().addClass("active-tab");
+      $(".games").find("button").first().addClass("active-tab").show();
+      $(".game-table").children().first().addClass("active-table").show(); // Show the first button and table
+
+      $(".game-tab").click(clickGameTab); // Add tab event listener
     }
 
-    $(".game-tab").click(clickGameTab);
+    $buttons = $(".games").find("button");
 
-    games.forEach((game) => {
-      let $button = $buttons.find(`[data-game-id="${game.id}"]`);
-      if(!game.state.played.find((user) => { return user === userId; })) {
-        $button.addClass("user-turn");
+    $buttons.each(function(button) {  // Update buttons to show user turn
+      let gameId = $(this).data("game-id");
+      let game = games.find((game) => { return game.id === gameId; });
+
+      if(game.state) {
+        if(game.state.played.indexOf(userId) === -1) {
+          $(this).addClass("user-turn");   // Add a class to each tab where it is the users turn
+        }
       }
     });
   };
 
   // Update to the beginning of the next round
   const updateGame = function(state) {
+    // Scores
     updateScore(state.scores);
     if(state.turn === 13) {
-      $(".deck-display").children().first().remove();
+      $(".active-table").find(".deck-display").children().first().remove();
     }
 
-    let $hand = $(".user-hand");
+    // User hand
     $(".active-tab").data("turn", state.turn);
-    $hand.empty();
-    $(".play-area").empty();
+    $(".active-table").find(".play-area").empty();
 
-    renderCards(state.hands.user);    // Replace with userId
-    $(".deck-flipped").remove();
-    $(".deck-display").append(`<img class="deck-flipped" src="/images/cards/${state.hands.deck}.png">`);
+    renderCards(state.hands.user);    // Clears hand and renders new hand
     $(".user-hand").click(clickCard);
+
+    // Deck and play-area
+    $(".active-table").find(".deck-flipped").remove();
+    $(".active-table").find(".deck-display").append(
+      `<img class="deck-flipped" src="/images/cards/${state.hands.deck}.png">`
+      );
+    // $(".active-table").find(".play-area").append(
+    //   `<img class="deck-flipped" src="/images/cards/${state.hands.deck}.png">`
+    //   );
+    // Replace with played card from game state
   };
 
   // End of game display
   const endGame = function(state) {
-    console.log("Ending game...");
     // clearGameTimer();
 
-    $(".play-area").empty();
+    $(".active-table").find(".play-area").empty();
     if(state.score.user >= state.score.opp) {
-      $(".play-area").append($(`<p>You Win!</p>`));
+      $(".active-table").find(".play-area").append($(`<p>You Win!</p>`));
     } else {
-      $(".play-area").append($(`<p>Better Luck Next Time!</p>`));
+      $(".active-table").find(".play-area").append($(`<p>Better Luck Next Time!</p>`));
     }
   };
 
@@ -92,37 +178,41 @@ $(() => {
       url: "/cards/games/1/lobby",   // Replace with gameId
       dataType: "JSON"
     }).then((games) => {
-      console.log("Returned games from Game check:", games);
       // clearGameTimer();
-      if(games.censoredGames[0] || games.lobbyGames[0]) {
+      if(!games.censoredGames[0] && !games.lobbyGames[0]) {
+        return;
+      } else {
+        let censoredGames = games.censoredGames;
+        let allGames = censoredGames.concat(games.lobbyGames);
+        if(!$(".games").find("button")[0]) {
+          updateTabs(allGames, games.userId);
+        }
         if(games.censoredGames[0]) {
-          updateTabs(games.censoredGames, games.userId);
 
           let savedTurn = $(".active-tab").data("turn");
           let gameId = $(".active-tab").data("game-id");
           let game = games.censoredGames.find((game) => { return game.id === gameId; });
-          if(savedTurn === game.state.turn) {
+          console.log("Games being compared:", game);
+          if(savedTurn === game.state.turn && gameId === game.id) {
             return;
-          } else if(game.state.turn === 0) {
+          } else if(game.state.turn === 0 && gameId === game.id) {
             endGame(game.state);
           } else {
             updateGame(game.state, games.userId);
           }
         }
         // setGameTimer();
-      } else {
-        return;
       }
     });
   };
 
   // Confirm the card to play
   const confirmCard = function(event) {
-    let gameId = $(".active-tab").data("gameId");
-    let $image = $(".play-area").find("img");
-    $(".confirm").off("click", confirmCard);
-    $(".user-hand").off("click", clickCard);
-    $(".confirm").remove();
+    let gameId = $(".active-tab").data("game-id");
+    let $image = $(".active-table").find(".play-area").find("img");
+    $(".active-table").find(".confirm").off("click", confirmCard);
+    $(".active-table").find(".user-hand").off("click", clickCard);
+    $(".active-table").find(".confirm").remove();
 
     $.ajax({
       method: "POST",
@@ -132,23 +222,22 @@ $(() => {
       if(!result) {
         return;
       } else {
-      console.log("The result from confirm:", result);
       }
     });
   };
 
   // Return any cards from staging area and play the clicked card
   const clickCard = function(event) {
-    if($(".confirm")[0]) {
-      let $image = $(".confirm").parent().find("img");
-      $(".user-hand").append($image);
-      $(".confirm").remove();
+    if($(".active-table").find(".confirm")[0]) {
+      let $image = $("active-table").find(".confirm").parent().find("img");
+      $(".active-table").find(".user-hand").append($image);
+      $(".active-table").find(".confirm").remove();
     }
 
     let $card = $(`.${event.target.className}`);
-    $(".play-area").append($(`<button class="confirm">Confirm</button>`));
-    $(".confirm").click(confirmCard);
-    $(".play-area").append($card);
+    $(".active-table").find(".play-area").append($(`<button class="confirm">Confirm</button>`));
+    $(".active-table").find(".confirm").click(confirmCard);
+    $(".active-table").find(".play-area").append($card);
   };
 
   // Event handler for creating a game
@@ -157,43 +246,27 @@ $(() => {
       return;
     } else {
       let gameNameId = $(this).data("game-name-id");
-      let $gameTab = $(
-        `<button class="game-tab">New Game
-        <span class="close-tab">x</span>
-        </button>`).data("game-name-id", gameNameId);
-      $gameTab.addClass("active-tab");
-
-      let $newTab = $(".games").append($gameTab);
 
       $.ajax({
         method: "POST",
         url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
         data: $.param({gameNameId: 1})   // Replace with gameNameId and userId
       }).then((res) => {
-        console.log("Response from join/create game:", res);
-        if(res === 404) {
-          return;
-        }
-        $gameTab.data("game-id", res[0]);
-        $(".game-tab").off("click", clickGameTab);
-        $(".game-tab").click(clickGameTab);
 
-        // $(".game-tab").off("click", clickGameTab);
-        // clearGameTimer();
-        // setGameTimer();
+        $(".active-tab").removeClass("active-tab");
+
+        let $gameTab = makeButton(gameNameId, res[0]);
+        $gameTab.addClass("active-tab");
+
+        $(".games").append($gameTab);               // Append new tab and table
+        $(".game-table").children().hide();
+        $(".game-table").append(createNewGame(res[0]));    // New game with gameId
+
+        $(".game-tab").off("click", clickGameTab);  // Reset tab event listeners
+        $(".game-tab").click(clickGameTab);
       });
     }
   });
-
-  const clickGameTab = function(event) {
-    $(".active-tab").removeClass("active-tab");
-    $(this).addClass("active-tab");
-  };
-
-  // Event handler for game tabs
-
-
-
 
 setGameTimer();
 
