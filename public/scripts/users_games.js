@@ -26,7 +26,7 @@ $(() => {
     let $table = $(
       `<figure>
         <header class="opponent">
-          <span class="opponent-score"></span></h3>
+          <h3></h3><span class="opponent-score"></span>
         </header>
 
         <section class="deck">
@@ -67,9 +67,10 @@ $(() => {
     $(".active-table .user-score").text(scores.user);
 
     for(let opponent in scores.opp) {
-      if(opponent !== "deck") {
-        $(`.active-table .${opponent} .opponent-score`).text(scores.opp[opponent]);
-      }
+      console.log("opponent with score:", opponent, "scores:", scores.opp);
+      console.log("Opponent:", opponent, "score:", scores.opp[opponent]);
+      console.log("Element to add to:", $(`.active-table .${opponent} .opponent-score`));
+      $(`.active-table .${opponent} .opponent-score`).text(`Score: ${scores.opp[opponent]}`);
     }
   };
 
@@ -82,6 +83,7 @@ $(() => {
       console.log("Made it into the if:", Object.keys(opps)[0]);
       $(this).addClass(opps[0]);
       $(this).addClass("active-opp");
+      $(this).find("h3").text(`Username: ${opps[0]}`);
       opps.shift();
     });
   };

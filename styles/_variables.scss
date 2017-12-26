@@ -26,7 +26,6 @@ $radius: 3px;
 @mixin row {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 }
 
 @mixin nav-input {
