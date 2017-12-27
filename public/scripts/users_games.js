@@ -26,20 +26,28 @@ $(() => {
     let $table = $(
       `<figure>
         <header class="opponent">
-          <h3></h3><span class="opponent-score"></span>
+          <h6></h6><span class="opponent-score"></span>
         </header>
 
-        <section class="deck">
-          <h3>Deck</h3>
-          <object class="deck-display">
-            <img src="/images/cards/cardback.png">
-          </object>
-          <div class="play-area">
-          </div>
-        </section>
+        <div class="board-middle">
+          <header class="opponent">
+            <h6></h6><span class="opponent-score"></span>
+          </header>
+          <section class="deck">
+            <h6>Deck</h6>
+            <object class="deck-display">
+              <img src="/images/cards/cardback.png">
+            </object>
+            <div class="play-area">
+            </div>
+          </section>
+          <header class="opponent">
+            <h6></h6><span class="opponent-score"></span>
+          </header>
+        </div>
 
         <footer>
-          <h3>Your Hand <span class="user-score"></span></h3>
+          <h6>Your Hand, Score: <span class="user-score"></span></h6>
           <object class="user-hand">
           </object>
         </footer>
@@ -74,10 +82,12 @@ $(() => {
     let opps = Object.keys(scores.opp);
     $(".active-table .opponent").each(function() {
 
-      $(this).addClass(opps[0]);
-      $(this).addClass("active-opp");
-      $(this).find("h3").text(`Username: ${opps[0]}`);
-      opps.shift();
+      if(opps[0]) {
+        $(this).addClass(opps[0]);
+        $(this).addClass("active-opp");
+        $(this).find("h6").text(`Username: ${opps[0]}`);
+        opps.shift();
+      }
     });
   };
 
@@ -258,9 +268,9 @@ $(() => {
     }
 
     let $card = $(`.${event.target.className}`);
+    $(".active-table .play-area").append($card);
     $(".active-table .play-area").append($(`<button class="confirm">Confirm</button>`));
     $(".active-table .confirm").click(confirmCard);
-    $(".active-table .play-area").append($card);
   };
 
   // Event handler for creating a game

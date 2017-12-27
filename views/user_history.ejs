@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>User Page</title>
+
+    <%- include partials/_head.ejs %>
+
+    <!-- Layouts CSS -->
+    <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
+
+    <!-- Users_games script -->
+    <script type="text/javascript" src="/scripts/users_games.js"></script>
+
+    <!-- Socket IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  </head>
+
+  <body>
+
+    <%- include partials/_header.ejs %>
+
+    <main>
+      <nav class="play-games">
+        <button class="join-lobby goofspiel" data-game-name-id="1">Goofspiel</button>
+        <button class="join-lobby hearts" data-game-name-id="2">Hearts</button>
+      </nav>
+
+      <section class="rankings">
+      </section>
+    </main>
+
+    <script>
+
+    </script>
+  </body>
+</html>

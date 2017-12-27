@@ -45,6 +45,34 @@ module.exports = (DataHelpers) => {
     }
   });
 
+  // Users rankings
+  router.get("/rankings", (req, res) => {
+    let userId = req.session.userId;
+    let templateVars = { username: null };
+
+    if(!userId) {
+      res.render("rankings", templateVars);
+    } else {
+      DataHelpers.getUserById(userId)
+      .then((user) => {
+        let username = user[0].username;
+        templateVars.username = username;
+        res.render("rankings", templateVars);
+      });
+    }
+  });
+
+  // Users rankings
+  router.get("/rankings/:id", (req, res) => {
+    let userId = req.session.userId;
+    let templateVars = { username: null };
+
+    DataHelpers.getRankings()
+      .then((rankings) => {
+        res.json(rankings);
+    });
+  });
+
   // User Login
   router.post("/login", (req, res) => {
     let { username, password } = req.body;

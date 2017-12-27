@@ -1,0 +1,71 @@
+@import "header";
+
+body {
+  background-color: lightgrey;
+}
+
+main {
+
+  .spacer {
+    background-color: $primary;
+    height: 50px;
+  }
+
+  nav {
+    display: flex;
+    position: relative;
+    z-index: 1;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+    background-color: $primary-light;
+    top: 150px;
+    // box-shadow: 0px 0.5px 0.5px $primary-dark;
+
+    h3 {
+      margin: 0 20px;
+    }
+
+    button {
+      background-color: $primary-light;
+      border: 0;
+      margin: 0px 5px;
+      padding: 0 20px;
+      color: white;
+      height: 50px;
+    }
+
+    .active-tab {
+      border-bottom: 4px solid $secondary;
+    }
+  }
+
+  table {
+    width: 95vw;
+    margin: 20px auto;
+    background-color: white;
+
+    th {
+      color: white;
+      background-color: $secondary-dark;
+      padding: 10px;
+    }
+
+    td {
+      color: $secondary-dark;
+    }
+
+    tr {
+      text-align: center;
+    }
+  }
+}
+
+footer {
+  height: 100px;
+  background-color: $primary-light;
+  box-shadow: 0px -0.5px 0.5px $primary;
+  position:absolute;
+  bottom:0;
+  width:100%;
+}
