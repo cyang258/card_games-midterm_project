@@ -53,8 +53,7 @@ main {
   }
 
   .games {
-    display: flex;
-    flex-direction: row;
+    @include row;
     background-color: $nav-color;
     height: 40px;
 
@@ -63,18 +62,18 @@ main {
     }
 
     .user-turn {
-      color: red;
+      background-color: #bcaaa4;
     }
 
     button {
       color: lightgrey;
+      @include row;
+      justify-content: space-between;
       margin: 0px;
       height: 100%;
       width: 20%;
-      background-color: #795548;
-      border-top: 1px solid #795548;
-      border-left: 1px solid #795548;
-      border-right: 1px solid #795548;
+      background-color: $table-color;
+      border: 1px solid $table-color;
       border-bottom: none;
       border-radius: 10px 10px 0 0;
     }

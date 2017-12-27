@@ -53,7 +53,7 @@ $(() => {
   const makeButton = function(gameNameId, gameId) {
     let $button = $(
           `<button class="game-tab">New Game
-            <span class="close-tab">x</span>
+            <span class="close-tab"><strong>&times;</strong></span>
           </button>`)
       .data("game-name-id", gameNameId)
       .data("game-id", gameId);
@@ -63,24 +63,17 @@ $(() => {
 
   // Change score elements to reflect score
   const updateScore = function(scores, userId) {
-    console.log("Users scores:", scores);
     $(".active-table .user-score").text(scores.user);
 
     for(let opponent in scores.opp) {
-      console.log("opponent with score:", opponent, "scores:", scores.opp);
-      console.log("Opponent:", opponent, "score:", scores.opp[opponent]);
-      console.log("Element to add to:", $(`.active-table .${opponent} .opponent-score`));
       $(`.active-table .${opponent} .opponent-score`).text(`Score: ${scores.opp[opponent]}`);
     }
   };
 
   const addOpponents = function(scores) {
-    console.log("adding opponents.........", scores);
     let opps = Object.keys(scores.opp);
-    console.log("Opponents scores:", opps);
     $(".active-table .opponent").each(function() {
 
-      console.log("Made it into the if:", Object.keys(opps)[0]);
       $(this).addClass(opps[0]);
       $(this).addClass("active-opp");
       $(this).find("h3").text(`Username: ${opps[0]}`);
@@ -112,7 +105,6 @@ $(() => {
         $newTable = $(this);        // Make new table the game with the matching gameId
       }
     });
-    console.log("New table after click:", $newTable);
 
     $(".game-table").children().hide(); // Hide other games and show current game
     $(".active-table").removeClass("active-table");
@@ -146,7 +138,6 @@ $(() => {
       let game = games.find((game) => { return game.id === gameId; });
 
       if(game.state) {
-        console.log("Game state played:", game.state.played);
         if(!game.state.played.find((player) => { return player["userId"] == userId; })) {
           $(this).addClass("user-turn");   // Add a class to each tab where it is the users turn
         } else {
@@ -158,7 +149,6 @@ $(() => {
 
   // Update to the beginning of the next round
   const updateGame = function(state) {
-    console.log("updating game.................");
     // Scores
     updateScore(state.scores);
     if(state.turn === 13) {
@@ -186,12 +176,18 @@ $(() => {
   // End of game display
   const endGame = function(state) {
     // clearGameTimer();
-
     $(".active-table").find(".play-area").empty();
-    if(state.score.user >= state.score.opp) {
-      $(".active-table").find(".play-area").append($(`<p>You Win!</p>`));
-    } else {
+    let oppScores = [];
+    for(let opp in state.scores.opp) {
+      oppScores.push(state.scores.opp[opp]);
+    }
+    console.log("Result of trying to find score:", oppScores.find((score) => { return score > state.scores.user; }));
+    console.log("Opp score:", oppScores);
+    console.log("User score:", state);
+    if(oppScores.find((score) => { return score > state.scores.user; })) {
       $(".active-table").find(".play-area").append($(`<p>Better Luck Next Time!</p>`));
+    } else {
+      $(".active-table").find(".play-area").append($(`<p>You Win!</p>`));
     }
   };
 
@@ -218,10 +214,11 @@ $(() => {
           if(!$(".active-opp")[0]) {
             addOpponents(game.state.scores);
           }
+            console.log("Game state trying to end game:", game.state);
           if(savedTurn === game.state.turn && gameId === game.id && $(".active-table .user-hand img")[0]) {
             return;
-          } else if(game.state.end_date && gameId === game.id) {
-            console.log("endGame");
+          } else if(game.state.turn > 13 && gameId === game.id) {
+            console.log("Ending the game game...");
             endGame(game.state);
           } else {
             updateGame(game.state, games.userId);
