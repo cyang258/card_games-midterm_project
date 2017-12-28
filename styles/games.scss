@@ -1,0 +1,157 @@
+@import "header";
+
+$card-width: 6vw;
+
+body {
+  background-color: lightgrey;
+  color: white;
+
+  .spacer {
+    background-color: $primary;
+    height: 50px;
+  }
+
+  .content {
+    flex: 1 0 auto;
+  }
+}
+
+main {
+  // Create games navbar
+  .play-games {
+    display: flex;
+    position: relative;
+    z-index: 1;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+    background-color: $primary-light;
+    // box-shadow: 0px 0.5px 0.5px $primary-dark;
+
+    h3 {
+      margin: 0 20px;
+    }
+
+    button {
+      background-color: $primary-light;
+      border: 0;
+      margin: 0px 5px;
+      padding: 0 20px;
+      color: white;
+      height: 50px;
+    }
+  }
+
+  // Individual game navigation
+  .board {
+    margin: 10px auto;
+
+    .games {
+      @include row;
+      background-color: $secondary-dark;
+      height: 40px;
+      width: 90vw;
+      margin: 10px auto 0;
+      position: sticky;
+      top: 0px;
+
+
+      button {
+        color: white;
+        @include row;
+        justify-content: space-between;
+        border: none;
+        height: 100%;
+        width: 20%;
+        background-color: $secondary-dark;
+      }
+
+      .active-tab {
+        border-bottom: 4px solid $primary-light;
+      }
+
+      .user-turn {
+        color: $primary-light;
+      }
+    }
+  }
+}
+
+// Game table
+figure {
+  @include column;
+  width: 90vw;
+  margin: 0 auto;
+  background-color: white;
+
+  // Card heights
+  img {
+    width: $card-width;
+    height: $card-width * 1.4;
+    margin: 1px;
+  }
+
+  .opponent {
+    width: 30%;
+    height: auto;
+    margin: 2px;
+    background-color: $secondary-light;
+  }
+
+  .board-middle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+
+    section {
+      @include column;
+      background-color: $secondary;
+      width: 30%;
+      height: 100%;
+
+      object {
+        @include row;
+        justify-content: center;
+        width: 90%;
+        margin: 2px;
+      }
+
+      .play-area {
+        @include column;
+
+        button {
+          background-color: $primary-light;
+          border: 0;
+          border-radius: 2px;
+          color: white;
+        }
+      }
+    }
+  }
+
+  footer {
+    @include column;
+    width: 95%;
+    margin: 2px;
+    background-color: $secondary-light;
+
+    object {
+      display: flex;
+      flex-direction: row;
+    }
+  }
+}
+
+.footer {
+  background-color: $primary-light;
+  box-shadow: 0px -0.5px 0.5px $primary;
+
+  h6 {
+    padding: 30px;
+  }
+}
+
+
+
+

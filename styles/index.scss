@@ -1,0 +1,61 @@
+@import "header";
+
+body {
+  background-color: lightgrey;
+  color: white;
+}
+
+.content {
+  flex: 1 0 auto;
+}
+
+main {
+  .spacer {
+    background-color: $primary;
+    padding: 30px;
+    text-align: center;
+  }
+
+  section {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 5vw;
+    text-align: center;
+
+    article {
+      background-color: white;
+      margin: 5px 3vw;
+      width: 300px;
+
+      header {
+        padding: 20px;
+        background-color: $secondary-dark;
+      }
+
+      section {
+        height: 200px;
+        color: black;
+      }
+
+      footer {
+        padding: 20px;
+        background-color: $secondary;
+      }
+    }
+  }
+}
+
+.footer {
+  background-color: $primary-light;
+  box-shadow: 0px -0.5px 0.5px $primary;
+
+  h6 {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 700px) {
+
+}

@@ -1,142 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Home Page</title>
+    <title>User Page</title>
 
     <%- include partials/_head.ejs %>
 
     <!-- Layouts CSS -->
-    <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
+    <link rel="stylesheet" href="/styles/users.css" type="text/css" />
 
     <!-- Users_games script -->
-    <script type="text/javascript" src="/scripts/users_games.js"></script>
+    <script type="text/javascript" src="/scripts/user-history.js"></script>
+
+    <!-- Socket IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
   </head>
 
   <body>
+    <div class="content">
+      <%- include partials/_header.ejs %>
 
-    <%- include partials/_header.ejs %>
-
-    <header>
-      <button class="join-lobby">Join</button>
-    </header>
-
-    <%- include partials/_games.ejs %>
-
-    <div class='container'>
-      <div class='row'>
-        <div class='col-md-4'>
-          <div class='well'>
-            <h3>Online Users</h3>
-            <ul class='list-group' id='users'></ul>
-          </div>
+      <main>
+        <div class="spacer">
         </div>
-        <div class='col-md-8'>
-          <div class='chat' id='chat'></div>
 
-          <form id='messageForm'>
-            <div class='form-group'>
-              <label>Enter Message</label>
-              <textarea class='form-control' id='message'></textarea>
-              <br />
-              <input type="submit" class='btn btn-primary' value='Send Message' />
-            </div>
+        <nav class="games">
+          <h3>Username: <span class="username"></span></h3>
+          <button>Goofspiel</button>
+          </nav>
+        </nav>
 
-          </form>
-        </div>
-      </div>
+        <table class="history">
+          <tr>
+            <th>Game</th>
+            <th>Game Id</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Opponents</th>
+            <th>Score</th>
+          </tr>
+        </table>
+      </main>
     </div>
 
-    <h3>Games</h3>
-    <div class="games"></div>
-
-    <section>
-      <h3>Opponent</h3>
-    </section>
-
-    <section class="deck">
-      <h3>Deck</h3>
-      <div class="deck-display">
-        <img src="/images/cards/cardback.png" height="70" width="50">
-      </div>
-      <div class="play-area">
-      </div>
-    </section>
-
-    <section class="user-hand">
-      <h3>Your Hand</h3>
-    </section>
-    <script>
-       // function createGame(id) {
-
-       // }
-
-      $(function(){
-        var socket = io.connect();
-
-
-
-
-
-        // for(var gameId = 0; gameId < 5; gameId++) {
-        //   createGame(gameId)
-        // }
-
-
-
-
-
-        var $Ready = $('#Ready');
-        var $createRoom = $('#create')
-        var $joinRoom   = $('#join')
-        var $roomNumber = $('#roomNumber')
-        var $joinNumber = $('#joinNumber')
-        var $leaveRoom  = $('#leaveRoom')
-
-        //create a room
-        $createRoom.submit(function(e){
-          e.preventDefault();
-          socket.emit('createRoom', $roomNumber.val());
-          $roomNumber.val('');
-        })
-
-        $joinRoom.submit(function(e){
-          e.preventDefault();
-          socket.emit('join_A_Room', $joinNumber.val());
-          $joinNumber.val('')
-        })
-
-        socket.on('alert',function(data){
-          console.log(data)
-        })
-       //leave a room
-        $leaveRoom.on('click', function(){
-
-        })
-
-        $Ready.on("click", function(){
-          // socket.emit()
-        })
-       //chat
-       var $messageForm = $('#messageForm')
-       var $message = $('#message')
-       var $chat = $('#chat')
-
-
-
-         $messageForm.submit(function(e){
-           e.preventDefault();
-           console.log('submited')
-           socket.emit('send message', { gameId: 5,
-                                         message: $message.val()});
-           $message.val('');
-         })
-
-         socket.on('new message', function(data){
-            $chat.append('<div class="well">'+ data.gameId + ": " + data.message +'</div>');
-         })
-
-      })
-    </script>
+    <footer class="footer">
+      <h6>Created 2017</h6>
+    </footer>
   </body>
 </html>

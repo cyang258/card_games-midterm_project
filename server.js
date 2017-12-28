@@ -46,6 +46,10 @@ app.use(knexLogger(knex));
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
+app.use("/styles", express.static(__dirname + '/node_modules/material-components-web/dist'));
+
 app.use("/styles", sass({
   src: __dirname + "/styles",
   dest: __dirname + "/public/styles",
@@ -53,6 +57,7 @@ app.use("/styles", sass({
   outputStyle: 'expanded'
 }));
 app.use(express.static("public"));
+
 
 // Use data helpers to contact db
 const DataHelpers = require("./lib/util/data_helpers")(knex);
@@ -63,62 +68,10 @@ app.use("/cards", usersRoutes(DataHelpers));
 
 // Home page
 app.get("/", (req, res) => {
-  res.render("index");
+  res.redirect("/cards");
 });
 
-//Set up socket.io connection
-const server      = require("http").createServer(app);
-const io          = require("socket.io").listen(server);
-
-var users = [];
-var connections = [];
-var rooms = [];
-
-
-
-io.on('connection', function(socket) {
-
-  //create room
-  socket.on("createRoom", function(room){
-
-      socket.join(room);
-      io.of('/').in(room).clients((error, clients) => {
-         if (error) throw error;
-         console.log(clients);
-      });
-
-  })
-  console.log(io.sockets.adapter.rooms);
-
-  //join a room
-  socket.on("join_A_Room", function(roomNumber){
-      socket.join(roomNumber);
-      console.log(io.sockets.adapter.rooms[roomNumber].length)
-      io.of('/').in(roomNumber).clients((error, clients) => {
-      if (error) throw error;
-        console.log(clients);
-      });
-  })
-
-
-  //How many people connected
-  connections.push(socket);
-  console.log('Connected: %s sockets connected', connections.length)
-
-  // Disconnect
-  socket.on('disconnect', function(data){
-    connections.splice(connections.indexOf(socket), 1);
-    console.log('Disconnected: %s sockets connected', connections.length)
-  })
-
-  socket.on('send message', function(data){
-    console.log(data);
-    io.emit('new message', data);
-  })
-})
-
-
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
 });
 

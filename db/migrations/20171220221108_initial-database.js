@@ -12,6 +12,7 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable('user_games', (table) => {
       table.integer('user_id');
       table.integer('game_id');
+      table.integer('score');
       table.primary(['user_id', 'game_id']);
     }),
     knex.schema.createTable('games', (table) => {

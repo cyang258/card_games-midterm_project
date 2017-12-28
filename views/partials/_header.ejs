@@ -1,65 +1,25 @@
-
-<div class="jumbotron jumbotron-fluid" style="background-color: #A5D6A7; color: white;">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-8">
-        <p style="font-size:4em; margin-left:0px;">Card Games</p>
-      </div>
-      <div class="col-sm-4 align-right user-forms">
-        <% if(userId) { %>
-          <form class="form-vertical logout" action="/cards/logout" method="POST">
-            <div class="form-group">
-              <button class="btn btn-primary text-center logout">Logout</button>
-            </div>
-          </form>
-        <% } else { %>
-          <form class="form-vertical login" action="/cards/login" method="POST">
-            <div class="form-group">
-              <input type="text" name="username" placeholder="Email/Username">
-            </div>
-            <div class="form-group">
-              <input type="password" name="password" placeholder="Password">
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary text-center login">Login</button>
-            </div>
-          </form>
-          <form class="form-vertical register">
-            <div class="form-group">
-              <button class="btn btn-primary text-center register">Register</button>
-            </div>
-          </form>
-        <% } %>
-      </div>
-    </div>
+<header class="header">
+  <h1>Goofspiel</h1>
+  <div class="login">
+    <% if(username) { %>
+      <h4><%= username %></h4>
+      <form action="/cards/logout" method="POST">
+        <button class="logout">Logout</button>
+      </form>
+    <% } else { %>
+      <form class="login" action="/cards/login" method="POST">
+        <input type="text" name="username" placeholder="Email/Username">
+        <input type="password" name="password" placeholder="Password">
+        <button class="login">Login</button>
+      </form>
+      <form>
+        <button class="register">Register</button>
+      </form>
+    <% } %>
   </div>
-</div>
+</header>
 
 <script>
-  // $(() => {
-  //   const loginListener = function(event) {
-  //     event.preventDefault();
-  //     let info = $(this).serialize();
-  //     console.log("Posted data:", info)
 
-  //     $.ajax({
-  //       method: "POST",
-  //       url: "/cards/login",   // Replace with gameNameId
-  //       data: info   // Replace with gameNameId and userId
-  //     })
-  //   }
-
-  //   const logoutListener = function(event) {
-  //     event.preventDefault();
-
-  //     $.ajax({
-  //       method: "POST",
-  //       url: "/cards/logout",   // Replace with gameNameId
-  //     })
-  //   }
-
-  //   $('.logout').on('submit', logoutListener);
-  //   $('.login').on('submit', loginListener);
-  // });
 </script>
 

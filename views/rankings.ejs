@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rankings</title>
+
+    <%- include partials/_head.ejs %>
+
+    <!-- Ranking CSS -->
+    <link rel="stylesheet" href="/styles/rankings.css" type="text/css">
+
+    <!-- Users_games script -->
+    <script type="text/javascript" src="/scripts/game-rankings.js"></script>
+
+    <!-- Google icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <div class="content">
+      <%- include partials/_header.ejs %>
+      <main>
+        <div class="spacer">
+        </div>
+        <nav class="games">
+          <h3>Rankings</h3>
+          <button>Goofspiel</button>
+          <button>Hearts</button>
+          </nav>
+        </nav>
+
+        <table class="rankings">
+          <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>Wins</th>
+          </tr>
+        </table>
+
+      </main>
+    </div>
+
+    <footer class="footer">
+      <h6>Created 2017</h6>
+    </footer>
+
+  </body>
+</html>

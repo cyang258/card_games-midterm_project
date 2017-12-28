@@ -6,32 +6,50 @@
     <%- include partials/_head.ejs %>
 
     <!-- Layouts CSS -->
-    <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
+    <link rel="stylesheet" href="/styles/index.css" type="text/css" />
 
     <!-- App script -->
     <script type="text/javascript" src="/scripts/app.js"></script>
-
-    <!-- Socket IO -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
   </head>
 
   <body>
-    <%- include partials/_header.ejs %>
+    <div class="content">
+      <%- include partials/_header.ejs %>
 
-    <p>some kind of description about our site</p>
-    <div class="row" style="margin: 10px;">
-      <div class="col-sm-4">
-        <img src="http://www.fillmurray.com/300/300">
-        <button id="Goofspiel" class="btn btn-block btn-success" action="#">Play Now</button>
-      </div>
-      <div class="col-sm-4">
-        <img src="http://www.fillmurray.com/300/300">
-        <button class="btn btn-block btn-success" action="#">Play Now</button>
-      </div>
-      <div class="col-sm-4">
-        <img src="http://www.fillmurray.com/300/300">
-        <button class="btn btn-block btn-success" action="#">Play Now</button>
-      </div>
+      <main>
+        <div class="spacer">
+          <p>This is a description of our site and all the cool card games you can play</p>
+        </div>
+
+        <section class="games">
+          <article class="goofspiel">
+            <header>
+              Goofspiel
+            </header>
+            <section>
+              Image placeholder
+            </section>
+            <footer>Play Now
+            </footer>
+          </article>
+
+          <article class="hearts">
+            <header>
+              Hearts
+            </header>
+            <section>
+              Image placeholder
+            </section>
+            <footer>Play Now
+            </footer>
+          </article>
+        </section>
+      </main>
     </div>
+
+    <footer class="footer">
+      <h6>Created 2017</h6>
+    </footer>
+
   </body>
 </html>

@@ -4,25 +4,113 @@ const express     = require('express');
 const router      = express.Router();
 const gameHelpers = require("../lib/util/game_helpers");
 
+
+
 module.exports = (DataHelpers) => {
 
-  // Users pages
-  router.get("/users/:id", (req, res) => {
+  const getOpponents = function(user, scores) {
+    let opponents = [];
+    for(let player in scores) {
+      if(player != user) {
+        opponents.push(`${player}: ${scores[player]}`);  // Cross site scripting vulnerability!
+      }
+    }
+    return opponents;
+  };
+
+  const checkUserId = function(userId) {
+    let templateVars = { username: null };
+
+    return new Promise((resolve, reject) => {
+      if(!userId) {
+        resolve(templateVars);
+      } else {
+        DataHelpers.getUserById(userId)
+        .then((user) => {
+          templateVars.username = user[0].username;
+
+          resolve(templateVars);
+        });
+      }
+    });
+  };
+
+  // Cards homepage
+  router.get("/", (req, res) => {
     let userId = req.session.userId;
-    let templateVars = { userId };
-    console.log('Userid on render:', userId);
-    res.render("users", templateVars);
+
+    checkUserId(userId).then((templateVars) => {
+      res.render("index", templateVars);
+    });
+  });
+
+  // Users pages
+  router.get("/users", (req, res) => {
+    let userId = req.session.userId;
+
+    checkUserId(userId).then((templateVars) => {
+      res.render("users", templateVars);
+    });
+  });
+
+  // Users history
+  router.get("/:id/history", (req, res) => {
+    let username = req.params.id;
+
+    DataHelpers.getUserGames(3).then((games) => {
+      if(games[0]) {
+        let history = games.map((game) => {
+          let newGame = {
+            name: game.name,
+            id: game.game_id,
+            start_date: game.start_date.toString().slice(0, 10),
+            end_date: game.end_date.toString().slice(0, 10),
+            score: game.score,
+            opponents: getOpponents(username, game.state.scores)
+          };
+          return newGame;
+        });
+        res.json(history);
+      } else {
+        res.status(404).send("Could not find games for that user");
+      }
+    });
+  });
+
+  // Games pages
+  router.get("/games", (req, res) => {
+    let userId = req.session.userId;
+
+    checkUserId(userId).then((templateVars) => {
+      res.render("games", templateVars);
+    });
+  });
+
+  // Users rankings
+  router.get("/rankings", (req, res) => {
+    let userId = req.session.userId;
+
+    checkUserId(userId).then((templateVars) => {
+      res.render("rankings", templateVars);
+    });
+  });
+
+  // Users rankings
+  router.get("/rankings/:id", (req, res) => {
+    DataHelpers.getRankings()
+      .then((rankings) => {
+        res.json(rankings);
+    });
   });
 
   // User Login
   router.post("/login", (req, res) => {
     let { username, password } = req.body;
-    console.log('login', username);
-    DataHelpers.getUser(username, password).then((result) => {
+
+    DataHelpers.getUserByLogin(username, password).then((result) => {
       if(!result) {
-        res.status(404).send();
+        res.status(404).send("Could not find user");
       } else {
-        console.log("Result of login query:", result);
         req.session.userId = result[0].id;
         let templateVars = { userId: result[0].id };
 
@@ -40,51 +128,54 @@ module.exports = (DataHelpers) => {
   });
 
   // Check if still in lobby
-  router.get("/games/:id/lobby", (req, res) => {
-    let gameId = req.params.id;
-    DataHelpers.getLobby(gameId, 2).then((results) => {
-      console.log("Results from check lobby:", results);
-      if(results[0]) {
-        res.json(results[0]);
-      } else {
-        res.json(null);
-      }
-    });
-  });
-
-  // Join lobby for a game
-  router.post("/games/join/:id", (req, res) => {
-    let gameNameId = req.params.id;
-    DataHelpers.addUserToLobby(2, gameNameId).then((lobby) => {
-      if(lobby.length > 1) {
-        DataHelpers.makeLobbyActive(gameNameId, gameHelpers.startGame(1, 2));      // Make lobby dynamic for players
-      }
-      res.json(lobby);
-    });
-  });
-
-  // Game route for updating cards
   router.get("/games/:id", (req, res) => {
+    let gameNameId = req.params.id;
     let userId = req.session.userId;
+
     if(userId) {
-      DataHelpers.getGameState(1).then((gameState) => {     // Hardcoded
-        if(!gameState){
-          res.json({ null: true });
-        } else {
-          userId = userId.toString();
-          console.log("Game State:", gameState);
-          let state = {
-            deck: gameHelpers.convertCardToString(gameState.hands.deck[0]),
-            user: gameHelpers.convertAllCards(gameState.hands[userId]),
-            turn: gameState.turn
-          };
-          res.json(state);
-        }
+      DataHelpers.getUserGames(userId)
+      .then((games) => {
+        let activeGames = games.filter((game) => { return !game.end_date && game.start_date; });
+        let lobbyGames = games.filter((game) => { return !game.start_date; });
+        let finishedGames = games.filter((game) => { return game.end_date; });
+
+        let censoredGames = gameHelpers.censorState(activeGames, userId);
+
+        res.json({ censoredGames, lobbyGames, finishedGames, userId });
       });
     } else {
       res.json(null);
     }
   });
+
+  // Join lobby for a game
+  router.post("/games/join/:id", (req, res) => {
+    let gameNameId = req.params.id;
+    let userId = req.session.userId;
+
+    if(userId) {
+      DataHelpers.getOpenGames(gameNameId, userId)
+      .then((games) => {
+        if(!games[0]) {
+          return DataHelpers.createGame(gameNameId);
+        } else {
+          return DataHelpers.getUsersInGame(games[0].id)
+            .then((users) => {
+              users.push({ user_id: userId.toString() });
+              let state = gameHelpers.makeState(users);
+              return DataHelpers.startGame(games[0].id, state);
+          });
+        }
+      }).then((gameId) => {
+        return DataHelpers.addUserGame(gameId[0], userId);
+      }).then((gameId) => {
+        res.json(gameId);
+      });
+    } else {
+      res.status(404).send("Cannot join a lobby while not logged in");
+    }
+  });
+
 
   // Card played
   router.post("/games/:id", (req, res) => {
@@ -92,21 +183,41 @@ module.exports = (DataHelpers) => {
     let gameId = req.params.id;
     let userId = req.session.userId;
 
-    DataHelpers.getGameState(gameId)
-    .then((state) => {
-      state.played.push({ userId, card });
-      // let index = state.turn.indexOf(userId);
-      // state.turn.splice(index, 1);
+    DataHelpers.getGameState(gameId, userId)
+    .then((game) => {
+      let state = game[0].state;
+      if(state.played.find((elm) => { return elm.userId === userId; })) {
+        res.json(null);
+      } else {
+        state.played.push({ userId, card });
+        let newState = state;
 
-      return DataHelpers.updateGameState(gameId, state);
-    }).then((state)=> {
-      let newState = state;
-      if(state[0].played.length > 0) {      // Replace with number of players
-        newState = gameHelpers.advanceGame(1, state[0]);
+        if(state.played.length > 1) {      // Replace with number of players
+          newState = gameHelpers.advanceGame(1, state);
+        }
+        return DataHelpers.updateGameState(gameId, newState);
       }
-      return DataHelpers.updateGameState(gameId, newState);
     }).then((state) => {
-      res.json(state);
+      if(state[0].turn > 13) {
+        return DataHelpers.endGame(gameId)
+        .then((state) => {
+          let wrapAllScores = function(scores, gameId) {
+            let array = [];
+            for(let user in scores) {
+              if(user !== "deck") {
+                array.push(DataHelpers.addGameScores(scores[user], gameId, user));
+              }
+            }
+            return array;
+          };
+
+          return Promise.all(
+            wrapAllScores(state[0].scores, gameId)
+          );
+        });
+      }
+    }).then((state) => {
+      res.status(201).send();
     });
   });
 

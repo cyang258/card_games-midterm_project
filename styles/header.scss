@@ -1,0 +1,59 @@
+@import "variables";
+
+$primary: #c62828;
+$primary-light: #ff5f52;
+$primary-dark: #8e0000;
+$secondary: #455a64;
+$secondary-light: #718792;
+$secondary-dark: #1c313a;
+
+$lightgrey: #f5f5f5;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: $primary-dark;
+  position: relative;
+  color: white;
+  height: 150px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  box-shadow: 0px 0px 2px black;
+  z-index: 2;
+
+  h1 {
+    margin: 20px 10px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    margin: 8px 5px;
+    font-size: 16px;
+  }
+
+  input {
+    border-radius: 2px;
+    border: 0;
+    margin: 2px 5px;
+  }
+
+  button {
+    @extend input;
+    background-color: $secondary;
+    box-shadow: 0.5px 0.5px 0.5px $secondary-dark;
+    color: white;
+    width: 120px;
+  }
+}
+
