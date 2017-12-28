@@ -129,10 +129,11 @@ $(() => {
     if(!$buttons[0]) {
       $(".game-table").empty();     // If there are no tabs then make them
       games.forEach((game) => {
-        let $button = makeButton(game.game_name_id, game.id);
+        console.log("Each game:", game);
+        let $button = makeButton(game.game_name_id, game.game_id).text(game.game_id);
         $(".games").append($button);
 
-        let $newTable = createNewGame(game.id).hide();
+        let $newTable = createNewGame(game.game_id).hide();
         $(".game-table").append($newTable);       // Add button and table for each game
       });
       $(".games").find("button").first().addClass("active-tab").show();
@@ -145,7 +146,7 @@ $(() => {
 
     $buttons.each(function(button) {  // Update buttons to show user turn
       let gameId = $(this).data("game-id");
-      let game = games.find((game) => { return game.id === gameId; });
+      let game = games.find((game) => { return game.game_id === gameId; });
 
       if(game.state) {
         if(!game.state.played.find((player) => { return player["userId"] == userId; })) {
@@ -158,11 +159,16 @@ $(() => {
   };
 
   // Update to the beginning of the next round
-  const updateGame = function(state) {
+  const updateDisplay = function(state) {
+    console.log("Update on turn:", state.turn);
     // Scores
     updateScore(state.scores);
     if(state.turn === 13) {
       $(".active-table").find(".deck-display").children().first().remove();
+    } else if(state.turn > 13) {
+      $(".active-tab").data("turn", state.turn);
+      endGame(state);
+      return;
     }
 
     // User hand
@@ -177,23 +183,18 @@ $(() => {
     $(".active-table").find(".deck-display").append(
       `<img class="deck-flipped" src="/images/cards/${state.hands.deck}.png">`
       );
-    // $(".active-table").find(".play-area").append(
-    //   `<img class="deck-flipped" src="/images/cards/${state.hands.deck}.png">`
-    //   );
-    // Replace with played card from game state
   };
 
   // End of game display
   const endGame = function(state) {
     // clearGameTimer();
-    $(".active-table").find(".play-area").empty();
+    console.log("Ending game...")
+    $(".active-table .play-area p").remove();
     let oppScores = [];
     for(let opp in state.scores.opp) {
       oppScores.push(state.scores.opp[opp]);
     }
-    console.log("Result of trying to find score:", oppScores.find((score) => { return score > state.scores.user; }));
-    console.log("Opp score:", oppScores);
-    console.log("User score:", state);
+
     if(oppScores.find((score) => { return score > state.scores.user; })) {
       $(".active-table").find(".play-area").append($(`<p>Better Luck Next Time!</p>`));
     } else {
@@ -205,10 +206,11 @@ $(() => {
   const checkGames = function() {
     $.ajax({
       method: "GET",
-      url: "/cards/games/1/lobby",   // Replace with gameId
+      url: "/cards/games/1",   // Replace with gameId
       dataType: "JSON"
     }).then((games) => {
       // clearGameTimer();
+      console.log("Games comiing in:", games);
       if(!games.censoredGames[0] && !games.lobbyGames[0]) {
         return;
       } else {
@@ -219,19 +221,17 @@ $(() => {
         if(games.censoredGames[0]) {
           let savedTurn = $(".active-tab").data("turn");
           let gameId = $(".active-tab").data("game-id");
-          let game = games.censoredGames.find((game) => { return game.id === gameId; });
+          let game = games.censoredGames.find((game) => { return game.game_id === gameId; });
 
-          if(!$(".active-opp")[0]) {
+          if(!$(".active-table .active-opp")[0]) {
             addOpponents(game.state.scores);
           }
-            console.log("Game state trying to end game:", game.state);
-          if(savedTurn === game.state.turn && gameId === game.id && $(".active-table .user-hand img")[0]) {
+          if(savedTurn === game.state.turn && game && game.state.turn < 14) {
+            console.log("Returning...")
             return;
-          } else if(game.state.turn > 13 && gameId === game.id) {
-            console.log("Ending the game game...");
-            endGame(game.state);
           } else {
-            updateGame(game.state, games.userId);
+            console.log("Updating...")
+            updateDisplay(game.state, games.userId);
           }
         }
         // setGameTimer();
@@ -251,11 +251,6 @@ $(() => {
       method: "POST",
       url: `/cards/games/${gameId}`,      // Replace with gameId
       data: $.param({ card: $image[0].className })
-    }).then((result) => {
-      if(!result) {
-        return;
-      } else {
-      }
     });
   };
 
@@ -288,7 +283,7 @@ $(() => {
 
         $(".active-tab").removeClass("active-tab");
 
-        let $gameTab = makeButton(gameNameId, res[0]);
+        let $gameTab = makeButton(gameNameId, res[0]).text(res[0]);
         $gameTab.addClass("active-tab");
 
         $(".games").append($gameTab);               // Append new tab and table

@@ -6,67 +6,97 @@ const gameHelpers = require("../lib/util/game_helpers");
 
 
 
-
 module.exports = (DataHelpers) => {
+
+  const getOpponents = function(user, scores) {
+    let opponents = [];
+    for(let player in scores) {
+      if(player != user) {
+        opponents.push(`${player}: ${scores[player]}`);  // Cross site scripting vulnerability!
+      }
+    }
+    return opponents;
+  };
+
+  const checkUserId = function(userId) {
+    let templateVars = { username: null };
+
+    return new Promise((resolve, reject) => {
+      if(!userId) {
+        resolve(templateVars);
+      } else {
+        DataHelpers.getUserById(userId)
+        .then((user) => {
+          templateVars.username = user[0].username;
+
+          resolve(templateVars);
+        });
+      }
+    });
+  };
 
   // Cards homepage
   router.get("/", (req, res) => {
     let userId = req.session.userId;
-    let templateVars = { username: null };
 
-    if(!userId) {
+    checkUserId(userId).then((templateVars) => {
       res.render("index", templateVars);
-    } else {
-      DataHelpers.getUserById(userId)
-      .then((user) => {
-        let username = user[0].username;
-        templateVars.username = username;
-
-        res.render("index", templateVars);
-      });
-    }
+    });
   });
 
   // Users pages
   router.get("/users", (req, res) => {
     let userId = req.session.userId;
-    let templateVars = { username: null };
 
-    if(!userId) {
+    checkUserId(userId).then((templateVars) => {
       res.render("users", templateVars);
-    } else {
-      DataHelpers.getUserById(userId)
-      .then((user) => {
-        let username = user[0].username;
-        templateVars.username = username;
+    });
+  });
 
-        res.render("users", templateVars);
-      });
-    }
+  // Users history
+  router.get("/:id/history", (req, res) => {
+    let username = req.params.id;
+
+    DataHelpers.getUserGames(3).then((games) => {
+      if(games[0]) {
+        let history = games.map((game) => {
+          let newGame = {
+            name: game.name,
+            id: game.game_id,
+            start_date: game.start_date.toString().slice(0, 10),
+            end_date: game.end_date.toString().slice(0, 10),
+            score: game.score,
+            opponents: getOpponents(username, game.state.scores)
+          };
+          return newGame;
+        });
+        res.json(history);
+      } else {
+        res.status(404).send("Could not find games for that user");
+      }
+    });
+  });
+
+  // Games pages
+  router.get("/games", (req, res) => {
+    let userId = req.session.userId;
+
+    checkUserId(userId).then((templateVars) => {
+      res.render("games", templateVars);
+    });
   });
 
   // Users rankings
   router.get("/rankings", (req, res) => {
     let userId = req.session.userId;
-    let templateVars = { username: null };
 
-    if(!userId) {
+    checkUserId(userId).then((templateVars) => {
       res.render("rankings", templateVars);
-    } else {
-      DataHelpers.getUserById(userId)
-      .then((user) => {
-        let username = user[0].username;
-        templateVars.username = username;
-        res.render("rankings", templateVars);
-      });
-    }
+    });
   });
 
   // Users rankings
   router.get("/rankings/:id", (req, res) => {
-    let userId = req.session.userId;
-    let templateVars = { username: null };
-
     DataHelpers.getRankings()
       .then((rankings) => {
         res.json(rankings);
@@ -98,7 +128,7 @@ module.exports = (DataHelpers) => {
   });
 
   // Check if still in lobby
-  router.get("/games/:id/lobby", (req, res) => {
+  router.get("/games/:id", (req, res) => {
     let gameNameId = req.params.id;
     let userId = req.session.userId;
 
@@ -107,10 +137,11 @@ module.exports = (DataHelpers) => {
       .then((games) => {
         let activeGames = games.filter((game) => { return !game.end_date && game.start_date; });
         let lobbyGames = games.filter((game) => { return !game.start_date; });
+        let finishedGames = games.filter((game) => { return game.end_date; });
 
         let censoredGames = gameHelpers.censorState(activeGames, userId);
 
-        res.json({ censoredGames, lobbyGames, userId });
+        res.json({ censoredGames, lobbyGames, finishedGames, userId });
       });
     } else {
       res.json(null);
@@ -145,39 +176,6 @@ module.exports = (DataHelpers) => {
     }
   });
 
-  // Game route for updating cards
-  router.get("/games/:id", (req, res) => {
-    let userId = req.session.userId;
-    let gameNameId = req.params.id;
-
-    if(userId) {
-      DataHelpers.getGameState(gameNameId).then((gameState) => {     // Hardcoded
-        if(!gameState){
-          res.json(null);
-        } else {
-          userId = userId.toString();
-          let users = Object.keys(gameState.scores);
-          users.splice(users.indexOf(userId), 1);
-          let opp = users[0];
-
-          let state = {
-            user: gameHelpers.convertAllCards(gameState.hands[userId]),
-            turn: gameState.turn,
-            score: { user: gameState.scores[userId], opp: gameState.scores[opp] }
-          };
-          if(gameState.hands.deck.length === 0) {
-            state.deck = '';
-          } else {
-            state.deck = gameHelpers.convertCardToString(gameState.hands.deck[0]);
-          }
-
-          res.json(state);
-        }
-      });
-    } else {
-      res.json(null);
-    }
-  });
 
   // Card played
   router.post("/games/:id", (req, res) => {
@@ -186,15 +184,13 @@ module.exports = (DataHelpers) => {
     let userId = req.session.userId;
 
     DataHelpers.getGameState(gameId, userId)
-    .then((state) => {
-      console.log("STate from played card:", state);
+    .then((game) => {
+      let state = game[0].state;
       if(state.played.find((elm) => { return elm.userId === userId; })) {
         res.json(null);
       } else {
         state.played.push({ userId, card });
-        console.log("State after pushed card:", state);
         let newState = state;
-        console.log("State after reassign:", state);
 
         if(state.played.length > 1) {      // Replace with number of players
           newState = gameHelpers.advanceGame(1, state);
@@ -202,7 +198,26 @@ module.exports = (DataHelpers) => {
         return DataHelpers.updateGameState(gameId, newState);
       }
     }).then((state) => {
-      res.json(state);
+      if(state[0].turn > 13) {
+        return DataHelpers.endGame(gameId)
+        .then((state) => {
+          let wrapAllScores = function(scores, gameId) {
+            let array = [];
+            for(let user in scores) {
+              if(user !== "deck") {
+                array.push(DataHelpers.addGameScores(scores[user], gameId, user));
+              }
+            }
+            return array;
+          };
+
+          return Promise.all(
+            wrapAllScores(state[0].scores, gameId)
+          );
+        });
+      }
+    }).then((state) => {
+      res.status(201).send();
     });
   });
 

@@ -1,78 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Games</title>
+    <title>User Page</title>
 
     <%- include partials/_head.ejs %>
 
     <!-- Layouts CSS -->
-    <link rel="stylesheet" href="/styles/games.css" type="text/css" />
-
-    <!-- Google icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/users.css" type="text/css" />
 
     <!-- Users_games script -->
-    <script type="text/javascript" src="/scripts/users_games.js"></script>
+    <script type="text/javascript" src="/scripts/user-history.js"></script>
 
     <!-- Socket IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
   </head>
 
   <body>
+    <div class="content">
+      <%- include partials/_header.ejs %>
 
-    <%- include partials/_header.ejs %>
+      <main>
+        <div class="spacer">
+        </div>
 
-    <div class="spacer">
-    </div>
-    <main>
-      <nav class="play-games">
-
-        <button class="join-lobby goofspiel" data-game-name-id="1">Play Goofspiel <i class="material-icons">add_circle</i></button>
-        <button class="join-lobby hearts" data-game-name-id="2">Play Hearts <i class="material-icons">add_circle</i></button>
-      </nav>
-
-      <div class="board">
         <nav class="games">
+          <h3>Username: <span class="username"></span></h3>
+          <button>Goofspiel</button>
+          </nav>
         </nav>
 
-        <article class="game-table">
-          <figure>
-            <header class="opponent">
-              <h6></h6><span class="opponent-score"></span>
-            </header>
-
-            <div class="board-middle">
-              <header class="opponent">
-                <h6></h6><span class="opponent-score"></span>
-              </header>
-              <section class="deck">
-                <h6>Deck</h6>
-                <object class="deck-display">
-                  <img src="/images/cards/cardback.png">
-                </object>
-                <div class="play-area">
-                </div>
-              </section>
-              <header class="opponent">
-                <h6></h6><span class="opponent-score"></span>
-              </header>
-            </div>
-
-            <footer>
-              <h6>Your Hand, Score: <span class="user-score"></span></h6>
-              <object class="user-hand">
-              </object>
-            </footer>
-          </figure>
-        </article>
-      </div>
-    </main>
+        <table class="history">
+          <tr>
+            <th>Game</th>
+            <th>Game Id</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Opponents</th>
+            <th>Score</th>
+          </tr>
+        </table>
+      </main>
+    </div>
 
     <footer class="footer">
+      <h6>Created 2017</h6>
     </footer>
-
-    <script>
-
-    </script>
   </body>
 </html>

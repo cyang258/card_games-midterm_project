@@ -22,18 +22,16 @@ exports.seed = function(knex, Promise) {
       knex('game_names').insert({name: 'goofspiel'})
     ]);
   }).then(function () {
-    return Promise.all([
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 1: [], 2: [], deck:[] }, scores: { 1: 40, 2: 51 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-21", end_date: "2017-12-22", state: { hands: { 2: [], 3: [], deck:[] }, scores: { 2: 45, 3: 46 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-19", end_date: "2017-12-20", state: { hands: { 4: [], 6: [], deck:[] }, scores: { 4: 61, 6: 30 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-15", end_date: "2017-12-16", state: { hands: { 5: [], 2: [], deck:[] }, scores: { 5: 55, 2: 36 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-17", end_date: "2017-12-18", state: { hands: { 3: [], 7: [], deck:[] }, scores: { 3: 43, 7: 48 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-16", end_date: "2017-12-17", state: { hands: { 1: [], 7: [], deck:[] }, scores: { 1: 42, 7: 49 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-12", end_date: "2017-12-13", state: { hands: { 4: [], 5: [], deck:[] }, scores: { 4: 52, 5: 39 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-11", end_date: "2017-12-12", state: { hands: { 2: [], 6: [], deck:[] }, scores: { 2: 63, 6: 28 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 3: [], 1: [], deck:[] }, scores: { 3: 44, 1: 47 }, turn: 14, played: []}}),
-      knex('games').insert({game_name_id: 1, start_date: "2017-12-18", end_date: "2017-12-19", state: { hands: { 7: [], 4: [], deck:[] }, scores: { 7: 41, 4: 50 }, turn: 14, played: []}}),
-    ]);
+    return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 1: [], 2: [], deck:[] }, scores: { 1: 40, 2: 51 }, turn: 14, played: []}})
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-21", end_date: "2017-12-22", state: { hands: { 2: [], 3: [], deck:[] }, scores: { 2: 45, 3: 46 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-19", end_date: "2017-12-20", state: { hands: { 4: [], 6: [], deck:[] }, scores: { 4: 61, 6: 30 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-15", end_date: "2017-12-16", state: { hands: { 5: [], 2: [], deck:[] }, scores: { 5: 55, 2: 36 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-17", end_date: "2017-12-18", state: { hands: { 3: [], 7: [], deck:[] }, scores: { 3: 43, 7: 48 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-16", end_date: "2017-12-17", state: { hands: { 1: [], 7: [], deck:[] }, scores: { 1: 42, 7: 49 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-12", end_date: "2017-12-13", state: { hands: { 4: [], 5: [], deck:[] }, scores: { 4: 52, 5: 39 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-11", end_date: "2017-12-12", state: { hands: { 2: [], 6: [], deck:[] }, scores: { 2: 63, 6: 28 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 3: [], 1: [], deck:[] }, scores: { 3: 44, 1: 47 }, turn: 14, played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-18", end_date: "2017-12-19", state: { hands: { 7: [], 4: [], deck:[] }, scores: { 7: 41, 4: 50 }, turn: 14, played: []}}); });
   }).then(function () {
     return Promise.all([
       knex('user_games').insert({user_id: 1, game_id: 1, score: 40}),

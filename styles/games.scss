@@ -1,12 +1,18 @@
 @import "header";
 
+$card-width: 6vw;
+
 body {
   background-color: lightgrey;
-  color: $text-color;
+  color: white;
 
   .spacer {
     background-color: $primary;
     height: 50px;
+  }
+
+  .content {
+    flex: 1 0 auto;
   }
 }
 
@@ -37,7 +43,9 @@ main {
   }
 
   // Individual game navigation
-  div {
+  .board {
+    margin: 10px auto;
+
     .games {
       @include row;
       background-color: $secondary-dark;
@@ -78,14 +86,14 @@ figure {
 
   // Card heights
   img {
-    height: 7vw;
-    width: 5vw;
-    padding: 1px;
+    width: $card-width;
+    height: $card-width * 1.4;
+    margin: 1px;
   }
 
-  header {
+  .opponent {
     width: 30%;
-    height: 80px;
+    height: auto;
     margin: 2px;
     background-color: $secondary-light;
   }
@@ -100,7 +108,7 @@ figure {
       @include column;
       background-color: $secondary;
       width: 30%;
-      height: 250px;
+      height: 100%;
 
       object {
         @include row;
@@ -124,20 +132,25 @@ figure {
 
   footer {
     @include column;
-    height: 10vw;
     width: 95%;
     margin: 2px;
     background-color: $secondary-light;
 
     object {
-      height: 100%;
-      @include row;
-      justify-content: center;
+      display: flex;
+      flex-direction: row;
     }
   }
 }
 
+.footer {
+  background-color: $primary-light;
+  box-shadow: 0px -0.5px 0.5px $primary;
 
+  h6 {
+    padding: 30px;
+  }
+}
 
 
 

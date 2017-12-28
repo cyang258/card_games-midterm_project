@@ -46,6 +46,10 @@ app.use(knexLogger(knex));
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
+app.use("/styles", express.static(__dirname + '/node_modules/material-components-web/dist'));
+
 app.use("/styles", sass({
   src: __dirname + "/styles",
   dest: __dirname + "/public/styles",
@@ -53,6 +57,7 @@ app.use("/styles", sass({
   outputStyle: 'expanded'
 }));
 app.use(express.static("public"));
+
 
 // Use data helpers to contact db
 const DataHelpers = require("./lib/util/data_helpers")(knex);
@@ -63,7 +68,7 @@ app.use("/cards", usersRoutes(DataHelpers));
 
 // Home page
 app.get("/", (req, res) => {
-  res.render("index");
+  res.redirect("/cards");
 });
 
 app.listen(PORT, () => {
