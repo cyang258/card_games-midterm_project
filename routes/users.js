@@ -4,6 +4,10 @@ const express     = require('express');
 const router      = express.Router();
 const gameHelpers = require("../lib/util/game_helpers");
 
+let gamePlayerNumbers = {
+  1: 2,
+  2: 4
+};
 
 
 module.exports = (DataHelpers) => {
@@ -162,8 +166,12 @@ module.exports = (DataHelpers) => {
           return DataHelpers.getUsersInGame(games[0].id)
             .then((users) => {
               users.push({ user_id: userId.toString() });
-              let state = gameHelpers.makeState(users);
-              return DataHelpers.startGame(games[0].id, state);
+              if(users.length === gamePlayerNumbers[gameNameId]) {
+                let state = gameHelpers.makeState(gameNameId, users);
+                return DataHelpers.startGame(games[0].id, state);
+              } else {
+                return [games[0].id];
+              }
           });
         }
       }).then((gameId) => {

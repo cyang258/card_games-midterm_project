@@ -159,7 +159,7 @@ $(() => {
   };
 
   // Update to the beginning of the next round
-  const updateDisplay = function(state) {
+  const updateDisplay = function(state, userId) {
     console.log("Update on turn:", state.turn);
     // Scores
     updateScore(state.scores);
@@ -175,7 +175,7 @@ $(() => {
     $(".active-tab").data("turn", state.turn);
     $(".active-table").find(".play-area").empty();
 
-    renderCards(state.hands.user);    // Clears hand and renders new hand
+    renderCards(state.hands[userId]);    // Clears hand and renders new hand
     $(".user-hand").click(clickCard);
 
     // Deck and play-area
@@ -278,7 +278,7 @@ $(() => {
       $.ajax({
         method: "POST",
         url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
-        data: $.param({gameNameId: 1})   // Replace with gameNameId and userId
+        data: $.param({ gameNameId })   // Replace with gameNameId and userId
       }).then((res) => {
 
         $(".active-tab").removeClass("active-tab");
