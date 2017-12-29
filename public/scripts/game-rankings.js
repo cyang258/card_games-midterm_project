@@ -16,7 +16,7 @@ $(() => {
           let $newRow = $(
             `<tr>
               <td>${i + 1}</td>
-              <td>${user.username}</td>
+              <td><a href="/cards/users/${user.username}">${user.username}</a></td>
               <td>${user.wins}</td>
             </tr>`);
           $(".rankings").append($newRow);

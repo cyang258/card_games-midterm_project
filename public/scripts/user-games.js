@@ -84,7 +84,7 @@ $(() => {
 
       if(opps[0]) {
         $(this).addClass(opps[0]);
-        $(this).addClass("active-opp");
+        $(this).addClass("active-opp").addClass(opps[0]);
         $(this).find("h6").text(`Username: ${opps[0]}`);
         opps.shift();
       }
@@ -96,8 +96,8 @@ $(() => {
     let $hand = $(".active-table .user-hand");
     $hand.empty();
 
-    cards.forEach( (card) => {
-      let $cardImage = $(`<img class="${card}" src="/images/cards/${card}.png">`);
+    cards.forEach((card, i) => {
+      let $cardImage = $(`<img class="${card}" style="order:${i + 1};" src="/images/cards/${card}.png">`);
       $hand.append($cardImage);
     });
   };
@@ -126,10 +126,9 @@ $(() => {
   const updateTabs = function(games, userId) {
     let $buttons = $(".games").find("button");
 
-    if(!$buttons[0]) {
-      $(".game-table").empty();     // If there are no tabs then make them
+    if(!$buttons[0]) {          // If there are no tabs then make them
+      $(".game-table").empty();
       games.forEach((game) => {
-        console.log("Each game:", game);
         let $button = makeButton(game.game_name_id, game.game_id).text(game.game_id);
         $(".games").append($button);
 
@@ -158,21 +157,36 @@ $(() => {
     });
   };
 
+  const updatePlayedCards = function(game, userId) {
+    console.log("Game for update played cards:", game);
+    let $userHand = $(".active-table .play-area");
+    $userHand.find("img").remove();
+
+    let $opp = $(`.active-table .active-opp`);
+    $opp.find("img").remove();
+
+    game.state.played.forEach((player) => {
+      if(player.userId === userId) {
+        $userHand.append($(`<img class="${player.card}" src="/images/cards/${player.card}.png">`).addClass("played-card"));
+        $(".active-table .user-hand").off("click", clickCard);
+      } else {
+        $opp.append($(`<img class="${player.card}" src="/images/cards/${player.card}.png">`).addClass("played-card"));
+      }
+    });
+  };
+
   // Update to the beginning of the next round
   const updateDisplay = function(state, userId) {
-    console.log("Update on turn:", state.turn);
     // Scores
     updateScore(state.scores);
     if(state.turn === 13) {
       $(".active-table").find(".deck-display").children().first().remove();
     } else if(state.turn > 13) {
-      $(".active-tab").data("turn", state.turn);
       endGame(state);
       return;
     }
 
     // User hand
-    $(".active-tab").data("turn", state.turn);
     $(".active-table").find(".play-area").empty();
 
     renderCards(state.hands[userId]);    // Clears hand and renders new hand
@@ -181,14 +195,13 @@ $(() => {
     // Deck and play-area
     $(".active-table").find(".deck-flipped").remove();
     $(".active-table").find(".deck-display").append(
-      `<img class="deck-flipped" src="/images/cards/${state.hands.deck}.png">`
+      `<img class="deck-flipped" src="/images/cards/${state.hands.deck[0]}.png">`
       );
   };
 
   // End of game display
   const endGame = function(state) {
     // clearGameTimer();
-    console.log("Ending game...")
     $(".active-table .play-area p").remove();
     let oppScores = [];
     for(let opp in state.scores.opp) {
@@ -206,31 +219,34 @@ $(() => {
   const checkGames = function() {
     $.ajax({
       method: "GET",
-      url: "/cards/games/1",   // Replace with gameId
+      url: "/cards/user/games",   // Replace with gameId
       dataType: "JSON"
     }).then((games) => {
       // clearGameTimer();
-      console.log("Games comiing in:", games);
       if(!games.censoredGames[0] && !games.lobbyGames[0]) {
         return;
       } else {
-        let censoredGames = games.censoredGames;
-        let allGames = censoredGames.concat(games.lobbyGames);
+        let activeGames = games.censoredGames;
+        let allGames = activeGames.concat(games.lobbyGames);
         updateTabs(allGames, games.userId);
 
-        if(games.censoredGames[0]) {
-          let savedTurn = $(".active-tab").data("turn");
+        if(activeGames[0]) {
           let gameId = $(".active-tab").data("game-id");
-          let game = games.censoredGames.find((game) => { return game.game_id === gameId; });
+          let game = activeGames.find((game) => { return game.game_id == gameId; });
+          let turn = game.state.turn.find((player) => { return player == games.userId; });
+          console.log("Played length:", game.state.played.length, "Played card:", $(".active-table .played-card").length);
+          if(game.state.played.length !== $(".active-table .played-card").length) {
+            updatePlayedCards(game, games.userId);
+          }
 
           if(!$(".active-table .active-opp")[0]) {
             addOpponents(game.state.scores);
           }
-          if(savedTurn === game.state.turn && game && game.state.turn < 14) {
-            console.log("Returning...")
+          console.log("Made it here!!!!!!!!!!!!!!!!! Game:", game);
+          console.log("Turn:", turn, "Played Card:", $(".active-table .play-area img")[0]);
+          if(game && ($(".active-table .user-hand img")[0] || game.state.hands[games.userId].length === 1) && (!turn || $(".active-table .play-area img")[0])) {
             return;
           } else {
-            console.log("Updating...")
             updateDisplay(game.state, games.userId);
           }
         }
@@ -262,7 +278,7 @@ $(() => {
       $(".active-table .confirm").remove();
     }
 
-    let $card = $(`.${event.target.className}`);
+    let $card = $(`.active-table .${event.target.className}`);
     $(".active-table .play-area").append($card);
     $(".active-table .play-area").append($(`<button class="confirm">Confirm</button>`));
     $(".active-table .confirm").click(confirmCard);

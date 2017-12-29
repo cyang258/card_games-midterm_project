@@ -18,9 +18,9 @@ exports.seed = function(knex, Promise) {
       knex('users').insert({username: 'Mary', email: 'mary@gmail.com', password: 'pass'})
     ]);
   }).then(function () {
-    return Promise.all([
-      knex('game_names').insert({name: 'goofspiel'})
-    ]);
+    return knex('game_names').insert({name: 'goofspiel'})
+      .then(() => { return knex('game_names').insert({name: 'hearts'});
+     });
   }).then(function () {
     return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 1: [], 2: [], deck:[] }, scores: { 1: 40, 2: 51 }, turn: 14, played: []}})
       .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-21", end_date: "2017-12-22", state: { hands: { 2: [], 3: [], deck:[] }, scores: { 2: 45, 3: 46 }, turn: 14, played: []}}); })

@@ -8,9 +8,6 @@
     <!-- Layouts CSS -->
     <link rel="stylesheet" href="/styles/users.css" type="text/css" />
 
-    <!-- Users_games script -->
-    <script type="text/javascript" src="/scripts/user-history.js"></script>
-
     <!-- Socket IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
   </head>
@@ -24,8 +21,8 @@
         </div>
 
         <nav class="games">
-          <h3>Username: <span class="username"></span></h3>
-          <button>Goofspiel</button>
+          <h3><span class="username"><%= playerName %>'s</span></h3>
+          <h3>Game History</h3>
           </nav>
         </nav>
 
@@ -38,6 +35,18 @@
             <th>Opponents</th>
             <th>Score</th>
           </tr>
+          <% if(history) { %>
+            <% history.forEach((game, i) => { %>
+              <tr>
+                <td><%= game.name %></td>
+                <td><%= game.id %></td>
+                <td><%= game.start_date %></td>
+                <td><%= game.end_date %></td>
+                <td><%= game.opponents %></td>
+                <td><%= game.score %></td>
+              </tr>
+            <% }); %>
+          <% } %>
         </table>
       </main>
     </div>
