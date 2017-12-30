@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 
-const PORT          = process.env.PORT || 8080;
+const PORT          = process.env.PORT || 9090;
 const ENV           = process.env.ENV || "development";
 const express       = require("express");
 const bodyParser    = require("body-parser");
@@ -29,12 +29,12 @@ app.use(cookieSession({
 }));
 
 // Testing with other users
-// ngrok.connect(9090, function (err, url) {
-//   if(err) {
-//     console.log(err);
-//   };
-//   console.log(url);
-// });
+ngrok.connect(9090, function (err, url) {
+  if(err) {
+    console.log(err);
+  };
+  console.log(url);
+});
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.

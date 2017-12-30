@@ -45,6 +45,22 @@ main {
   // Individual game navigation
   .board {
     margin: 10px auto;
+    position: relative;
+    color: white;
+
+    .end-message {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 80%;
+      z-index: 3;
+      background-color: $primary-dark;
+    }
 
     .games {
       @include row;
@@ -81,6 +97,7 @@ main {
 figure {
   @include column;
   width: 90vw;
+  min-height: 300px;
   margin: 0 auto;
   background-color: white;
 

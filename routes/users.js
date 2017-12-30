@@ -157,9 +157,9 @@ module.exports = (DataHelpers) => {
         let lobbyGames = games.filter((game) => { return !game.start_date; });
         let finishedGames = games.filter((game) => { return game.end_date; });
 
-        let censoredGames = gameHelpers.censorState(activeGames, userId);
+        activeGames = gameHelpers.censorState(activeGames, userId);
 
-        res.json({ censoredGames, lobbyGames, finishedGames, userId });
+        res.json({ activeGames, lobbyGames, finishedGames, userId });
       });
     } else {
       res.json(null);
@@ -212,17 +212,15 @@ module.exports = (DataHelpers) => {
 
       state.played.push({ userId, card });
       let newState = gameHelpers.advanceGame(gameNameId, state, userId);
-      if(newState) {
-        return DataHelpers.updateGameState(gameId, newState);
-      } else {
-        res.json(null).send("User has already played a card this turn");
-      }
+      return new Promise((resolve, reject) => {
+        if(newState) {
+          resolve(DataHelpers.updateGameState(gameId, newState));
+        } else {
+          reject("Cannot play that card");
+        }
+      });
     }).then((state) => {
-      console.log("After update:", state[0]);
-      console.log("State round:", state[0].round);
-      console.log("Game over?:", gameHelpers.gameType(1).checkEnd(state[0]));
-      if(gameHelpers.gameType(1).checkEnd(state[0])) {
-        console.log("Ending game!");
+      if(state[0].winner) {
         return DataHelpers.endGame(gameId)
         .then((state) => {
           let wrapAllScores = function(scores, gameId) {
@@ -242,6 +240,8 @@ module.exports = (DataHelpers) => {
       }
     }).then((state) => {
       res.status(201).send();
+    }).catch((message) => {
+      res.status(201).send(message);
     });
   });
 
