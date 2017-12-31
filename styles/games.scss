@@ -1,6 +1,7 @@
 @import "header";
 
 $card-width: 6vw;
+$green-board: #1b5e20;
 
 body {
   background-color: lightgrey;
@@ -19,39 +20,47 @@ body {
 main {
   // Create games navbar
   .play-games {
-    display: flex;
+    @include row;
+    align-items: center;
     position: relative;
     z-index: 1;
-    flex-direction: row;
-    align-items: center;
     color: white;
     background-color: $primary-light;
-    // box-shadow: 0px 0.5px 0.5px $primary-dark;
 
     h3 {
       margin: 0 20px;
     }
 
+    article {
+      @include column;
+      justify-content: center;
+    }
+
     button {
-      background-color: $primary-light;
-      border: 0;
+      height: 50px;
       margin: 0px 5px;
       padding: 0 20px;
+      border: 0;
       color: white;
-      height: 50px;
+      background-color: $primary-light;
     }
   }
 
   // Individual game navigation
   .board {
-    margin: 10px auto;
     position: relative;
+    width: 90vw;
+    margin: 10px auto;
     color: white;
+
+    p {
+      font-size: 1.5vw;
+      margin: 0;
+    }
 
     .end-message {
       position: absolute;
-      display: flex;
-      flex-direction: column;
+      @include column;
       justify-content: center;
       align-items: center;
       top: 10%;
@@ -59,26 +68,26 @@ main {
       width: 80%;
       height: 80%;
       z-index: 3;
-      background-color: $primary-dark;
+      color: white;
+      background-color: $primary-light;
+      box-shadow: 1px 1px 1px black;
     }
 
     .games {
       @include row;
-      background-color: $secondary-dark;
-      height: 40px;
-      width: 90vw;
-      margin: 10px auto 0;
       position: sticky;
       top: 0px;
-
+      height: 40px;
+      margin: 10px auto 0;
+      background-color: $secondary-dark;
 
       button {
-        color: white;
         @include row;
         justify-content: space-between;
-        border: none;
         height: 100%;
         width: 20%;
+        border: none;
+        color: white;
         background-color: $secondary-dark;
       }
 
@@ -91,71 +100,77 @@ main {
       }
     }
   }
-}
 
-// Game table
-figure {
-  @include column;
-  width: 90vw;
-  min-height: 300px;
-  margin: 0 auto;
-  background-color: white;
-
-  // Card heights
-  img {
-    width: $card-width;
-    height: $card-width * 1.4;
-    margin: 1px;
-  }
-
-  .opponent {
-    width: 30%;
-    height: auto;
-    margin: 2px;
-    background-color: $secondary-light;
-  }
-
-  .board-middle {
-    display: flex;
-    flex-direction: row;
+  figure {
+    @include column;
     justify-content: space-between;
-    width: 100%;
+    min-height: 40vw;
+    margin: 0 auto;
+    background-color: $secondary;
 
-    section {
-      @include column;
-      background-color: $secondary;
+    // Card heights
+    img {
+      width: $card-width;
+      height: $card-width * 1.4;
+      margin: 2px 1px;
+    }
+
+    aside, > header  {
       width: 30%;
-      height: 100%;
+      text-align: center;
+    }
+
+    > header {
+      height: 33%;
+    }
+
+    .board-middle {
+      @include row;
+      justify-content: space-between;
+      height: 33%;
+      width: 100%;
+
+      section {
+        @include column;
+        justify-content: space-between;
+        width: 30%;
+
+        object {
+          @include row;
+          justify-content: center;
+          width: 90%;
+          padding: 4px;
+          background-color: $secondary-light;
+          box-shadow: 0.5px 0.5px 1px black;
+        }
+
+        .play-area {
+          @include column;
+
+          button {
+            background-color: $primary-light;
+            border: 0;
+            border-radius: 2px;
+            color: white;
+          }
+        }
+      }
+    }
+
+    footer {
+      @include column;
+      height: 33%;
+      width: 95%;
+      margin: 0 0 3px 0;
 
       object {
         @include row;
         justify-content: center;
-        width: 90%;
-        margin: 2px;
+        height: 9vw;
+        width: 95%;
+        box-shadow: 0.5px 0.5px 1px black;
+        background-color: $secondary-light;
       }
-
-      .play-area {
-        @include column;
-
-        button {
-          background-color: $primary-light;
-          border: 0;
-          border-radius: 2px;
-          color: white;
-        }
-      }
-    }
-  }
-
-  footer {
-    @include column;
-    width: 95%;
-    margin: 2px;
-    background-color: $secondary-light;
-
-    object {
-      display: flex;
-      flex-direction: row;
     }
   }
 }
@@ -166,9 +181,19 @@ figure {
 
   h6 {
     padding: 30px;
+    font-size: 1vw;
   }
 }
 
+@media (max-width: 700px) {
+  p {
+    font-size: 10px;
+  }
 
-
-
+  main {
+    .board {
+      width: 100%;
+      margin: 10 0 10 0;
+    }
+  }
+}

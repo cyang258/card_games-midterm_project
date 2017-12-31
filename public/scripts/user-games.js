@@ -43,28 +43,30 @@ $(() => {
     let $table = $(
       `<figure class="game-room">
         <header class="opponent">
-          <h6></h6><span class="opponent-score"></span>
+          <p></p>
+          <p class="opponent-score"></p>
         </header>
 
         <div class="board-middle">
-          <header class="opponent">
-            <h6></h6><span class="opponent-score"></span>
-          </header>
+          <aside class="opponent">
+            <p></p>
+            <p class="opponent-score"></p>
+          </aside>
           <section class="deck">
-            <h6>Deck</h6>
             <object class="deck-display">
               <img src="/images/cards/cardback.png">
             </object>
             <div class="play-area">
             </div>
           </section>
-          <header class="opponent">
-            <h6></h6><span class="opponent-score"></span>
-          </header>
+          <aside class="opponent">
+            <p></p>
+            <p class="opponent-score"></p>
+          </aside>
         </div>
 
         <footer>
-          <h6>Your Hand, Score: <span class="user-score"></span></h6>
+          <p>Your Hand, Score: <span class="user-score"></span></p>
           <object class="user-hand">
           </object>
         </footer>
@@ -102,7 +104,7 @@ $(() => {
       if(opps[0]) {
         $(this).addClass(opps[0]);
         $(this).addClass("active-opp").addClass(opps[0]);
-        $(this).find("h6").text(`Username: ${opps[0]}`);
+        $(this).find("p").text(`Username: ${opps[0]}`);
         opps.shift();
       }
     });
@@ -244,16 +246,14 @@ $(() => {
 
   // End of game display
   const endGame = function(state, userId, gameId) {
-    // clearGameTimer();
     makeGameActive(gameId);
-    console.log("In end game!")
     let gameNameId = $(".active-tab").data("game-name-id");
     let oppScores = [];
     for(let opp in state.scores.opp) {
       oppScores.push(state.scores.opp[opp]);
     }
 
-    let won = state.winner.indexOf(userId);
+    let won = state.winner.indexOf(userId.toString());
 
     if(won === -1) {
       $(".board").append($(
