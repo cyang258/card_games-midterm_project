@@ -20,27 +20,27 @@ exports.seed = function(knex, Promise) {
       .then(() => { return knex('game_names').insert({name: 'hearts'});
      });
   }).then(function () {
-    return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 1: [], 2: [], deck:[] }, scores: { 1: 40, 2: 51 }, turn: 14, played: []}})
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-21", end_date: "2017-12-22", state: { hands: { 2: [], 3: [], deck:[] }, scores: { 2: 45, 3: 46 }, round: 14, winner:["3"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-19", end_date: "2017-12-20", state: { hands: { 4: [], 6: [], deck:[] }, scores: { 4: 61, 6: 30 }, round: 14, winner:["4"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-15", end_date: "2017-12-16", state: { hands: { 5: [], 2: [], deck:[] }, scores: { 5: 55, 2: 36 }, round: 14, winner:["5"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-17", end_date: "2017-12-18", state: { hands: { 3: [], 7: [], deck:[] }, scores: { 3: 43, 7: 48 }, round: 14, winner:["7"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-16", end_date: "2017-12-17", state: { hands: { 1: [], 7: [], deck:[] }, scores: { 1: 42, 7: 49 }, round: 14, winner:["7"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-12", end_date: "2017-12-13", state: { hands: { 4: [], 5: [], deck:[] }, scores: { 4: 52, 5: 39 }, round: 14, winner:["4"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-11", end_date: "2017-12-12", state: { hands: { 2: [], 6: [], deck:[] }, scores: { 2: 63, 6: 28 }, round: 14, winner:["2"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { 3: [], 1: [], deck:[] }, scores: { 3: 44, 1: 47 }, round: 14, winner:["1"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-18", end_date: "2017-12-19", state: { hands: { 7: [], 4: [], deck:[] }, scores: { 7: 41, 4: 50 }, round: 14, winner:["4"], played: []}}); })
-      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-05", end_date: null, state: { hands: { 1: [4, 9], 2: [18, 23], deck:[45, 48] }, scores: { 1: 43, 2: 33 }, round: 12, turn: [1, 2], played: []}}); })
+    return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { "Andrew": [], "Chun": [], deck:[] }, scores: { "Andrew": 40, "Chun": 51 }, turn: 14, played: []}})
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-21", end_date: "2017-12-22", state: { hands: { "Chun": [], "Tymm": [], deck:[] }, scores: { "Chun": 45, "Tymm": 46 }, round: 14, winner:["3"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-19", end_date: "2017-12-20", state: { hands: { "Bryan": [], "Matt": [], deck:[] }, scores: { "Bryan": 61, "Matt": 30 }, round: 14, winner:["4"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-15", end_date: "2017-12-16", state: { hands: { "Mandy": [], "Chun": [], deck:[] }, scores: { "Mandy": 55, "Chun": 36 }, round: 14, winner:["5"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-17", end_date: "2017-12-18", state: { hands: { "Tymm": [], "Mary": [], deck:[] }, scores: { "Tymm": 43, "Mary": 48 }, round: 14, winner:["7"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-16", end_date: "2017-12-17", state: { hands: { "Andrew": [], "Mary": [], deck:[] }, scores: { "Andrew": 42, "Mary": 49 }, round: 14, winner:["7"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-12", end_date: "2017-12-13", state: { hands: { "Bryan": [], "Mandy": [], deck:[] }, scores: { "Bryan": 52, "Mandy": 39 }, round: 14, winner:["4"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-11", end_date: "2017-12-12", state: { hands: { "Chun": [], "Matt": [], deck:[] }, scores: { "Chun": 63, "Matt": 28 }, round: 14, winner:["2"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-20", end_date: "2017-12-21", state: { hands: { "Tymm": [], "Andrew": [], deck:[] }, scores: { "Tymm": 44, "Andrew": 47 }, round: 14, winner:["1"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-18", end_date: "2017-12-19", state: { hands: { "Mary": [], "Bryan": [], deck:[] }, scores: { "Mary": 41, "Bryan": 50 }, round: 14, winner:["4"], played: []}}); })
+      .then(() => { return knex('games').insert({game_name_id: 1, start_date: "2017-12-05", end_date: null, state: { hands: { "Andrew": [4, 9], "Chun": [18, 23], deck:[45, 48] }, scores: { "Andrew": 43, "Chun": 33 }, round: 12, turn: ["Andrew", "Chun"], played: []}}); })
       .then(() => { return knex('games').insert({game_name_id: 2, start_date: "2017-12-05", end_date: null, state: { hands: {
-        1: [52, 48, 45, 37, 30, 25, 23, 22, 16, 15, 14, 7, 1],
-        2: [50, 47, 41, 40, 39, 38, 35, 34, 29, 28, 18, 8, 4],
-        3: [49, 46, 44, 33, 31, 27, 19, 17, 12, 11, 10, 9, 2],
-        4: [51, 43, 42, 36, 32, 26, 24, 21, 20, 13, 6, 5, 3]
+        "Andrew": [52, 48, 45, 37, 30, 25, 23, 22, 16, 15, 14, 7, 1],
+        "Chun": [50, 47, 41, 40, 39, 38, 35, 34, 29, 28, 18, 8, 4],
+        "Tymm": [49, 46, 44, 33, 31, 27, 19, 17, 12, 11, 10, 9, 2],
+        "Bryan": [51, 43, 42, 36, 32, 26, 24, 21, 20, 13, 6, 5, 3]
       },
-        scores: { 1: 0, 2: 0, 3: 0, 4: 0 },
-        roundScores: { 1: 0, 2: 0, 3: 0, 4: 0 },
+        scores: { "Andrew": 0, "Chun": 0, "Tymm": 0, "Bryan": 0 },
+        roundScores: { "Andrew": 0, "Chun": 0, "Tymm": 0, "Bryan": 0 },
         round: 1,
-        turn: [3],
+        turn: ["Bryan"],
         played: []
       }}); });
   }).then(function () {

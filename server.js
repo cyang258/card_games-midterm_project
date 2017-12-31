@@ -47,7 +47,7 @@ app.use(knexLogger(knex));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
+// Use MDC components
 app.use("/styles", express.static(__dirname + '/node_modules/material-components-web/dist'));
 
 app.use("/styles", sass({
@@ -61,7 +61,6 @@ app.use(express.static("public"));
 
 // Use data helpers to contact db
 const DataHelpers = require("./lib/util/data_helpers")(knex);
-
 
 // Mount all resource routes
 app.use("/cards", usersRoutes(DataHelpers));

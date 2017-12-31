@@ -1,5 +1,4 @@
-@import "variables";
-
+// Vairables and mixins
 $primary: #c62828;
 $primary-light: #ff5f52;
 $primary-dark: #8e0000;
@@ -9,6 +8,28 @@ $secondary-dark: #1c313a;
 
 $lightgrey: #f5f5f5;
 
+@mixin column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin row {
+  display: flex;
+  flex-direction: row;
+}
+
+@mixin nav-input {
+  margin: 0.2vw;
+  height: 30px;
+}
+
+@mixin clear-fix {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+// Content styling
 html, body {
   height: 100%;
 }
@@ -19,24 +40,26 @@ body {
 }
 
 .header {
-  background-color: $primary-dark;
   position: relative;
-  color: white;
-  height: 150px;
-  display: flex;
-  flex-direction: row;
+  @include row;
   justify-content: space-between;
   align-items: flex-end;
-  box-shadow: 0px 0px 2px black;
+  height: 150px;
   z-index: 2;
+  color: white;
+  background-color: $primary-dark;
+  box-shadow: 0px 0px 2px black;
 
   h1 {
     margin: 20px 10px;
   }
 
+  h4 {
+    margin: 2px 10px;
+  }
+
   form {
-    display: flex;
-    flex-direction: column;
+    @include column;
     justify-content: right;
     margin: 8px 5px;
     font-size: 16px;

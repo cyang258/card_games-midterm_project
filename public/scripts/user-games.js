@@ -2,7 +2,10 @@ $(() => {
   // Global interval variables
   let lobbyTimer;
   let gameTimer;
-  // $(".deck").data("game-id", 1);
+  let gameNames = {
+    1: "Goofspiel",
+    2: "Hearts"
+  };
 
   // Timer to check game state
   const setGameTimer = function() {
@@ -24,13 +27,13 @@ $(() => {
   const makeGameActive = function(gameId) {
     $(".game-table").children().hide();
     $(".game-tab").each(function() {
-      if($(this).text() == gameId) {
+      if($(this).data("game-id") === gameId) {
         $(".active-tab").removeClass("active-tab");
         $(this).addClass("active-tab");
       }
     });
     $(".game-table").children().each(function() {
-      if($(this).data("gameId") == gameId) {
+      if($(this).data("gameId") === gameId) {
         $(".active-table").removeClass("active-table");
         $(this).addClass("active-table");
         $(this).show();
@@ -89,7 +92,7 @@ $(() => {
   };
 
   // Change score elements to reflect score
-  const updateScore = function(scores, userId) {
+  const updateScore = function(scores, username) {
     $(".active-table .user-score").text(scores.user);
 
     for(let opponent in scores.opp) {
@@ -116,7 +119,9 @@ $(() => {
     $hand.empty();
 
     cards.forEach((card, i) => {
-      let $cardImage = $(`<img class="${card}" style="order:${i + 1};" src="/images/cards/${card}.png">`);
+      let $cardImage = $(
+        `<img class="${card}" style="order:${i + 1};" src="/images/cards/${card}.png">`
+        );
       $hand.append($cardImage);
     });
   };
@@ -138,12 +143,13 @@ $(() => {
   };
 
   // Update game tabs for turn
-  const updateTabs = function(games, userId) {
+  const updateTabs = function(games, username) {
     // If there are no tabs then make them
     if(!$(".game-tab")[0]) {
       $(".game-room").remove();
       games.forEach((game) => {
-        let $button = makeButton(game.game_name_id, game.game_id).text(game.game_id);
+        let $button = makeButton(game.game_name_id, game.game_id);
+        $button.text(gameNames[game.game_name_id] + " (" + game.game_id + ")");
         $(".games").append($button);
 
         let $newTable = createNewGame(game.game_id).hide();
@@ -159,7 +165,7 @@ $(() => {
       let gameId = $(this).data("game-id");
       let game = games.find((game) => { return game.game_id === gameId; });
 
-      if(game && (!game.state || game.state.turn.indexOf(userId) === -1)) {
+      if(game && (!game.state || game.state.turn.indexOf(username) === -1)) {
         $(this).removeClass("user-turn");
       } else {
         $(this).addClass("user-turn");   // Add a class to each tab where it is the users turn
@@ -167,9 +173,9 @@ $(() => {
     });
   };
 
-  const updatePlayedCards = function(game, userId) {
+  const updatePlayedCards = function(game, username) {
     let $userPlay = $(".active-table .play-area");
-    let userPlayed = game.state.played.find((player) => { return player.userId == userId; });
+    let userPlayed = game.state.played.find((player) => { return player.username === username; });
 
     if(!userPlayed) {
       $userPlay.find(".played-card").remove();
@@ -179,12 +185,14 @@ $(() => {
     $opp.find("img").remove();
 
     game.state.played.forEach((player) => {
-      let $card = $(`<img class="${player.card}" src="/images/cards/${player.card}.png">`).addClass("played-card");
-      if(player.userId == userId) {
+      let $card = $(
+        `<img class="${player.card}" src="/images/cards/${player.card}.png">`
+        ).addClass("played-card");
+      if(player.username === username) {
         $userPlay.find("img").remove();
         $userPlay.append($card);
       } else {
-        $(`.active-table .${player.userId}`).append($card);
+        $(`.active-table .${player.username}`).append($card);
       }
     });
   };
@@ -197,55 +205,56 @@ $(() => {
   };
   // Update to the beginning of the next round
   const updateDisplay = function(games) {
-    let { activeGames, lobbyGames, finishedGames, userId } = games;
+    let { activeGames, lobbyGames, finishedGames, username } = games;
+
+    console.log("Games from get request:", games);
 
     if(!activeGames[0] && !lobbyGames[0] && !$(".active-tab")[0]) {
       return;
     }
     let allGames = activeGames.concat(lobbyGames);
-    updateTabs(allGames, userId);
+    updateTabs(allGames, username);
 
     let gameId = $(".active-table").data("game-id");
-    console.log("Game id:", gameId);
-    let gameOver = finishedGames.find((game) => { return game.game_id == gameId; });
+    let gameOver = finishedGames.find((game) => { return game.game_id === gameId; });
     if(gameOver) {
-      endGame(gameOver.state, userId, gameId);
+      endGame(gameOver.state, username, gameId);
     }
 
-    if(activeGames[0]) {
-      let game = activeGames.find((game) => { return game.game_id == gameId; });
+    let game = activeGames.find((game) => { return game.game_id === gameId; });
+    if(game) {
 
-      if(!$(".active-table .active-opp")[0]) {
+      if($(".active-table")[0] && !$(".active-table .active-opp")[0]) {
         addOpponents(game.state.scores);
       }
-      updatePlayedCards(game, userId);
+      updatePlayedCards(game, username);
 
-      console.log("Game turn:", game.state.turn);
-      console.log("Users turn?:", game.state.turn.indexOf(userId));
-      console.log("Users id:", userId);
       $(".user-hand").off("click", clickCard);
-      if(game.state.turn.indexOf(userId > -1)) {
+      if(game.state.turn.indexOf(username) > -1) {
         $(".user-hand").click(clickCard);
       }
 
       if(game.state.round !== $(".active-tab").data("round"))  {
         $(".active-tab").data("round", game.state.round);
         updateScore(game.state.scores);
-        updateDeck(game.state.hands.deck[0]);
+        if(game.game_name_id === 1) {
+          updateDeck(game.state.hands.deck[0]);
+        }
       }
 
-      let usersCards = $(".active-table .user-hand img").length + $(".active-table .play-area img").length;
+      let usersCards = $(".active-table .user-hand img").length
+                       + $(".active-table .play-area img").length;
       if($(".active-table .play-area .played-card")[0]) {
         usersCards -= 1;
       }
-      if(usersCards !== game.state.hands[userId].length) {
-        renderCards(game.state.hands[userId]);    // Clears hand and renders new hand
+      if(usersCards !== game.state.hands[username].length) {
+        renderCards(game.state.hands[username]);    // Clears hand and renders new hand
       }
     }
   };
 
   // End of game display
-  const endGame = function(state, userId, gameId) {
+  const endGame = function(state, username, gameId) {
     makeGameActive(gameId);
     let gameNameId = $(".active-tab").data("game-name-id");
     let oppScores = [];
@@ -253,7 +262,7 @@ $(() => {
       oppScores.push(state.scores.opp[opp]);
     }
 
-    let won = state.winner.indexOf(userId.toString());
+    let won = state.winner.indexOf(username);
 
     if(won === -1) {
       $(".board").append($(
@@ -270,6 +279,9 @@ $(() => {
         </div>`
       ));
     }
+    let otherGames = $(".active-table").siblings();
+    if(otherGames.length > 1) {
+    }
     $(".active-tab").remove();
     $(".active-table").remove();
     $(".landing-screen").show();
@@ -284,6 +296,9 @@ $(() => {
       dataType: "JSON"
     }).then((games) => {
 
+      if(!games) {
+        return;
+      }
       updateDisplay(games);
     });
   };
@@ -304,6 +319,11 @@ $(() => {
       data: $.param({ card }),
       statusCode: {
         404: function(result) {
+          $(".active-table footer").append($(
+            `<p class="error">Cannot play that card</p>`));
+          setTimeout(function() {
+            $(".error").remove();
+          }, 2000);
         }
       }
     });
@@ -311,6 +331,9 @@ $(() => {
 
   // Return any cards from staging area and play the clicked card
   const clickCard = function(event) {
+    if(event.target.className === "user-hand") {
+      return;
+    }
     if($(".active-table .confirm")[0]) {
       let $image = $(".active-table .confirm").parent().find("img");
       $(".active-table .user-hand").append($image);
@@ -338,7 +361,8 @@ $(() => {
     }).then((res) => {
 
       let gameId = res[0];
-      let $newTab = makeButton(gameNameId, gameId).text(gameId);
+      let $newTab = makeButton(gameNameId, gameId);
+      $newTab.text(gameNames[gameNameId] + " (" + gameId + ")");
       $(".games").append($newTab);               // Append new tab and table
 
       let $newGame = createNewGame(gameId);

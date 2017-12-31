@@ -9,7 +9,6 @@ let gamePlayerNumbers = {
   2: 4
 };
 
-
 module.exports = (DataHelpers) => {
 
   const getOpponents = function(user, scores) {
@@ -64,7 +63,8 @@ module.exports = (DataHelpers) => {
     let userId = req.session.userId;
     let templateVars = {};
 
-    checkUserId(userId).then((vars) => {
+    checkUserId(userId)
+    .then((vars) => {
       templateVars = vars;
       return DataHelpers.getUserId(username);
     }).then((userId) => {
@@ -149,17 +149,21 @@ module.exports = (DataHelpers) => {
   // Get users games to determine active
   router.get("/:id/games", (req, res) => {
     let userId = req.session.userId;
+    let username = "";
 
     if(userId) {
-      DataHelpers.getUserGames(userId)
-      .then((games) => {
+      DataHelpers.getUserById(userId)
+      .then((user) => {
+        username = user[0].username;
+        return DataHelpers.getUserGames(userId);
+      }).then((games) => {
         let activeGames = games.filter((game) => { return !game.end_date && game.start_date; });
         let lobbyGames = games.filter((game) => { return !game.start_date; });
         let finishedGames = games.filter((game) => { return game.end_date; });
 
-        activeGames = gameHelpers.censorState(activeGames, userId);
+        activeGames = gameHelpers.censorState(activeGames, username);
 
-        res.json({ activeGames, lobbyGames, finishedGames, userId });
+        res.json({ activeGames, lobbyGames, finishedGames, username });
       });
     } else {
       res.json(null);
@@ -170,18 +174,25 @@ module.exports = (DataHelpers) => {
   router.post("/games/join/:id", (req, res) => {
     let gameNameId = req.body.gameNameId;
     let userId = req.session.userId;
+    let username = "";
 
     if(userId) {
-      DataHelpers.getOpenGames(gameNameId, userId)
-      .then((games) => {
+      DataHelpers.getUserById(userId)
+      .then((user) => {
+        username = user[0].username;
+        return username;
+      }).then(() => {
+        return DataHelpers.getOpenGames(gameNameId, userId);
+      }).then((games) => {
         if(!games[0]) {
           return DataHelpers.createGame(gameNameId);
         } else {
           return DataHelpers.getUsersInGame(games[0].id)
             .then((users) => {
-              users.push({ user_id: userId.toString() });
+              users.push({ username });
               if(users.length === gamePlayerNumbers[gameNameId]) {
                 let state = gameHelpers.makeState(gameNameId, users);
+                console.log("State from game made:", state);
                 return DataHelpers.startGame(games[0].id, state);
               } else {
                 return [games[0].id];
@@ -198,20 +209,23 @@ module.exports = (DataHelpers) => {
     }
   });
 
-
   // Card played
   router.post("/games/:id", (req, res) => {
     let card = gameHelpers.stringToCard(req.body.card);
     let gameId = req.params.id;
     let userId = req.session.userId;
+    let username = "";
 
-    DataHelpers.getGameState(gameId, userId)
-    .then((game) => {
+    DataHelpers.getUserById(userId)
+    .then((user) => {
+      username = user[0].username;
+      return DataHelpers.getGameState(gameId, userId);
+    }).then((game) => {
       let state = game[0].state;
       let gameNameId = game[0].game_name_id;
 
-      state.played.push({ userId, card });
-      let newState = gameHelpers.advanceGame(gameNameId, state, userId);
+      state.played.push({ username, card });
+      let newState = gameHelpers.advanceGame(gameNameId, state, username);
       return new Promise((resolve, reject) => {
         if(newState) {
           resolve(DataHelpers.updateGameState(gameId, newState));

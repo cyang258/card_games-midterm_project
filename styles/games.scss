@@ -1,7 +1,10 @@
 @import "header";
 
-$card-width: 6vw;
-$green-board: #1b5e20;
+@mixin clear-fix {
+  content: "";
+  display: table;
+  clear: both;
+}
 
 body {
   background-color: lightgrey;
@@ -101,8 +104,13 @@ main {
     }
   }
 
+  .landing-screen {
+    justify-content: center;
+  }
+
   figure {
     @include column;
+    align-items: center;
     justify-content: space-between;
     min-height: 40vw;
     margin: 0 auto;
@@ -110,8 +118,8 @@ main {
 
     // Card heights
     img {
-      width: $card-width;
-      height: $card-width * 1.4;
+      width: 6vw;
+      height: 6vw * 1.4;
       margin: 2px 1px;
     }
 
@@ -139,19 +147,22 @@ main {
           @include row;
           justify-content: center;
           width: 90%;
-          padding: 4px;
+          padding: 2px;
           background-color: $secondary-light;
           box-shadow: 0.5px 0.5px 1px black;
         }
 
         .play-area {
-          @include column;
+          @include row;
+          align-items: center;
+          justify-content: center;
 
           button {
-            background-color: $primary-light;
+            height: 20px;
             border: 0;
             border-radius: 2px;
             color: white;
+            background-color: $primary-light;
           }
         }
       }
@@ -159,6 +170,7 @@ main {
 
     footer {
       @include column;
+      align-items: center;
       height: 33%;
       width: 95%;
       margin: 0 0 3px 0;
@@ -171,6 +183,10 @@ main {
         box-shadow: 0.5px 0.5px 1px black;
         background-color: $secondary-light;
       }
+
+      .error {
+        color: red;
+      }
     }
   }
 }
@@ -180,20 +196,45 @@ main {
   box-shadow: 0px -0.5px 0.5px $primary;
 
   h6 {
-    padding: 30px;
-    font-size: 1vw;
+    padding: 0px 20px;
   }
 }
 
+// Prevent cards and some text from shrinking further
 @media (max-width: 700px) {
-  p {
-    font-size: 10px;
-  }
 
   main {
     .board {
       width: 100%;
       margin: 10 0 10 0;
+
+      p {
+        font-size: 10px;
+      }
+
+      .games {
+        button {
+          font-size: 14px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+      }
+    }
+
+    figure {
+      img {
+        width: 42px;
+        height: 60px;
+      }
+
+      footer {
+        object {
+          text-align: center;
+          flex-wrap: wrap;
+          @include clear-fix;
+        }
+      }
     }
   }
 }
