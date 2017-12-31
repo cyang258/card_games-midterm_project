@@ -4,6 +4,10 @@ const express     = require('express');
 const router      = express.Router();
 const gameHelpers = require("../lib/util/game_helpers");
 
+let gamePlayerNumbers = {
+  1: 2,
+  2: 4
+};
 
 
 module.exports = (DataHelpers) => {
@@ -54,23 +58,38 @@ module.exports = (DataHelpers) => {
   });
 
   // Users history
-  router.get("/:id/history", (req, res) => {
-    let username = req.params.id;
+  router.get("/users/:name", (req, res) => {
+    let username = req.params.name;
 
-    DataHelpers.getUserGames(3).then((games) => {
+    let userId = req.session.userId;
+    let templateVars = {};
+
+    checkUserId(userId).then((vars) => {
+      templateVars = vars;
+      return DataHelpers.getUserId(username);
+    }).then((userId) => {
+      return DataHelpers.getUserGames(userId[0].id);
+    }).then((games) => {
       if(games[0]) {
-        let history = games.map((game) => {
-          let newGame = {
-            name: game.name,
-            id: game.game_id,
-            start_date: game.start_date.toString().slice(0, 10),
-            end_date: game.end_date.toString().slice(0, 10),
-            score: game.score,
-            opponents: getOpponents(username, game.state.scores)
-          };
-          return newGame;
-        });
-        res.json(history);
+        let history = games.reduce((acc, game) => {
+          if(game.end_date) {
+            let newGame = {
+              name: game.name,
+              id: game.game_id,
+              start_date: game.start_date.toString().slice(0, 10),
+              end_date: game.end_date.toString().slice(0, 10),
+              score: game.score,
+              opponents: getOpponents(username, game.state.scores)
+            };
+            acc.push(newGame);
+            return acc;
+          } else {
+            return acc;
+          }
+        }, []);
+        templateVars.history = history;
+        templateVars.playerName = username;
+        res.render("users", templateVars);
       } else {
         res.status(404).send("Could not find games for that user");
       }
@@ -127,9 +146,8 @@ module.exports = (DataHelpers) => {
     res.redirect(req.get('referer'));
   });
 
-  // Check if still in lobby
-  router.get("/games/:id", (req, res) => {
-    let gameNameId = req.params.id;
+  // Get users games to determine active
+  router.get("/:id/games", (req, res) => {
     let userId = req.session.userId;
 
     if(userId) {
@@ -139,9 +157,9 @@ module.exports = (DataHelpers) => {
         let lobbyGames = games.filter((game) => { return !game.start_date; });
         let finishedGames = games.filter((game) => { return game.end_date; });
 
-        let censoredGames = gameHelpers.censorState(activeGames, userId);
+        activeGames = gameHelpers.censorState(activeGames, userId);
 
-        res.json({ censoredGames, lobbyGames, finishedGames, userId });
+        res.json({ activeGames, lobbyGames, finishedGames, userId });
       });
     } else {
       res.json(null);
@@ -150,7 +168,7 @@ module.exports = (DataHelpers) => {
 
   // Join lobby for a game
   router.post("/games/join/:id", (req, res) => {
-    let gameNameId = req.params.id;
+    let gameNameId = req.body.gameNameId;
     let userId = req.session.userId;
 
     if(userId) {
@@ -162,8 +180,12 @@ module.exports = (DataHelpers) => {
           return DataHelpers.getUsersInGame(games[0].id)
             .then((users) => {
               users.push({ user_id: userId.toString() });
-              let state = gameHelpers.makeState(users);
-              return DataHelpers.startGame(games[0].id, state);
+              if(users.length === gamePlayerNumbers[gameNameId]) {
+                let state = gameHelpers.makeState(gameNameId, users);
+                return DataHelpers.startGame(games[0].id, state);
+              } else {
+                return [games[0].id];
+              }
           });
         }
       }).then((gameId) => {
@@ -186,19 +208,19 @@ module.exports = (DataHelpers) => {
     DataHelpers.getGameState(gameId, userId)
     .then((game) => {
       let state = game[0].state;
-      if(state.played.find((elm) => { return elm.userId === userId; })) {
-        res.json(null);
-      } else {
-        state.played.push({ userId, card });
-        let newState = state;
+      let gameNameId = game[0].game_name_id;
 
-        if(state.played.length > 1) {      // Replace with number of players
-          newState = gameHelpers.advanceGame(1, state);
+      state.played.push({ userId, card });
+      let newState = gameHelpers.advanceGame(gameNameId, state, userId);
+      return new Promise((resolve, reject) => {
+        if(newState) {
+          resolve(DataHelpers.updateGameState(gameId, newState));
+        } else {
+          reject("Cannot play that card");
         }
-        return DataHelpers.updateGameState(gameId, newState);
-      }
+      });
     }).then((state) => {
-      if(state[0].turn > 13) {
+      if(state[0].winner) {
         return DataHelpers.endGame(gameId)
         .then((state) => {
           let wrapAllScores = function(scores, gameId) {
@@ -218,6 +240,8 @@ module.exports = (DataHelpers) => {
       }
     }).then((state) => {
       res.status(201).send();
+    }).catch((message) => {
+      res.status(201).send(message);
     });
   });
 

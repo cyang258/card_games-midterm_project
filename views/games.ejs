@@ -36,33 +36,12 @@
           </nav>
 
           <article class="game-table">
-            <figure>
-              <header class="opponent">
-                <h6></h6><span class="opponent-score"></span>
-              </header>
-
-              <div class="board-middle">
-                <header class="opponent">
-                  <h6></h6><span class="opponent-score"></span>
-                </header>
-                <section class="deck">
-                  <h6>Deck</h6>
-                  <object class="deck-display">
-                    <img src="/images/cards/cardback.png">
-                  </object>
-                  <div class="play-area">
-                  </div>
-                </section>
-                <header class="opponent">
-                  <h6></h6><span class="opponent-score"></span>
-                </header>
-              </div>
-
-              <footer>
-                <h6>Your Hand, Score: <span class="user-score"></span></h6>
-                <object class="user-hand">
-                </object>
-              </footer>
+            <figure class="landing-screen">
+            <% if(username) { %>
+              <h3>Create a game to get started.</h3>
+            <% } else { %>
+              <h3>Please login to create games.</h3>
+            <% } %>
             </figure>
           </article>
         </div>
