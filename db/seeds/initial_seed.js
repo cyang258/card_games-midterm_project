@@ -41,28 +41,6 @@ exports.seed = function(knex, Promise) {
         round: 1,
         turn: ["Tymm"],
         played: []
-      }}); })
-      .then(() => { return knex('games').insert({game_name_id: 2, start_date: "2017-12-29", end_date: null, state: { hands: {
-        "Andrew": [23],
-        "Chun": [4],
-        "Tymm": [12],
-        "Bryan": [21]
-      },
-        scores: { "Andrew": 103, "Chun": 95, "Tymm": 93, "Bryan": 90 },
-        round: 15,
-        turn: ["Andrew"],
-        played: []
-      }}); })
-      .then(() => { return knex('games').insert({game_name_id: 2, start_date: "2017-12-26", end_date: null, state: { hands: {
-        "Andrew": [52, 37, 30, 25, 16, 15, 1],
-        "Chun": [41, 40, 39, 34, 29, 8, 4],
-        "Mandy": [49, 33, 31, 17, 12, 11, 9],
-        "Bryan": [43, 42, 26, 24, 13, 6, 5]
-      },
-        scores: { "Andrew": 84, "Chun": 75, "Mandy": 68, "Bryan": 79 },
-        round: 15,
-        turn: ["Andrew"],
-        played: []
       }}); });
   }).then(function () {
     return Promise.all([
@@ -91,15 +69,7 @@ exports.seed = function(knex, Promise) {
       knex('user_games').insert({user_id: 1, game_id: 12, score: null}),
       knex('user_games').insert({user_id: 2, game_id: 12, score: null}),
       knex('user_games').insert({user_id: 3, game_id: 12, score: null}),
-      knex('user_games').insert({user_id: 4, game_id: 12, score: null}),
-      knex('user_games').insert({user_id: 1, game_id: 13, score: null}),
-      knex('user_games').insert({user_id: 2, game_id: 13, score: null}),
-      knex('user_games').insert({user_id: 3, game_id: 13, score: null}),
-      knex('user_games').insert({user_id: 4, game_id: 13, score: null}),
-      knex('user_games').insert({user_id: 1, game_id: 14, score: null}),
-      knex('user_games').insert({user_id: 2, game_id: 14, score: null}),
-      knex('user_games').insert({user_id: 5, game_id: 14, score: null}),
-      knex('user_games').insert({user_id: 4, game_id: 14, score: null}),
+      knex('user_games').insert({user_id: 4, game_id: 12, score: null})
     ]);
   });
 };
