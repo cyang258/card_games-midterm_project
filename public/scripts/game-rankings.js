@@ -4,12 +4,12 @@ $(() => {
     if(event.target !== $(".active-tab")) {
       $(".active-tab").removeClass("active-tab");
       $(this).addClass("active-tab");
+      let gameNameId = $(this).data("game-name-id");
       $("td").parent().remove();
-
 
       $.ajax({
         method: "GET",
-        url: "rankings/1",
+        url: "rankings/" + gameNameId,
         dataType: "JSON"
       }).done((users) => {
         users.forEach((user, i) => {
@@ -26,5 +26,6 @@ $(() => {
   };
 
   $(".games button").click(getRankings);
+  $(".games button").first().click();
 
 });

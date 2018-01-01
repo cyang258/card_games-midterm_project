@@ -21,11 +21,17 @@
       <%- include partials/_header.ejs %>
       <main>
         <div class="spacer">
+          <button>
+            <a href="/cards/games">Games</a>
+          </button>
+          <button class="current-page">
+            <a>Rankings</a>
+          </button>
         </div>
         <nav class="games">
           <h3>Rankings</h3>
-          <button>Goofspiel</button>
-          <button>Hearts</button>
+          <button data-game-name-id="1">Goofspiel</button>
+          <button data-game-name-id="2">Hearts</button>
           </nav>
         </nav>
 

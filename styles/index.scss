@@ -10,12 +10,6 @@ body {
 }
 
 main {
-  .spacer {
-    background-color: $primary;
-    padding: 30px;
-    text-align: center;
-  }
-
   section {
     display: flex;
     flex-direction: row;
@@ -27,7 +21,7 @@ main {
     article {
       background-color: white;
       margin: 5px 3vw;
-      width: 300px;
+      width: 350px;
 
       header {
         padding: 20px;
@@ -35,13 +29,25 @@ main {
       }
 
       section {
-        height: 200px;
         color: black;
+        height: 269px;
+        margin: 0;
+        padding: 0;
+
+        img {
+          width: 350px;
+          height: 269px;
+        }
       }
 
       footer {
         padding: 20px;
-        background-color: $secondary;
+        background-color: $primary-light;
+
+        a {
+          text-decoration: none;
+          color: white;
+        }
       }
     }
   }

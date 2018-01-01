@@ -10,11 +10,6 @@ body {
   background-color: lightgrey;
   color: white;
 
-  .spacer {
-    background-color: $primary;
-    height: 50px;
-  }
-
   .content {
     flex: 1 0 auto;
   }
@@ -56,9 +51,17 @@ main {
     margin: 10px auto;
     color: white;
 
-    p {
+    .error {
+      color: $primary-light;
+    }
+
+    a, p {
       font-size: 1.5vw;
       margin: 0;
+    }
+
+    a {
+      color: $primary-light;
     }
 
     .end-message {
@@ -184,9 +187,7 @@ main {
         background-color: $secondary-light;
       }
 
-      .error {
-        color: red;
-      }
+
     }
   }
 }
@@ -208,8 +209,12 @@ main {
       width: 100%;
       margin: 10 0 10 0;
 
-      p {
+      a, p {
         font-size: 10px;
+      }
+
+      a {
+        color: $primary-light;
       }
 
       .games {

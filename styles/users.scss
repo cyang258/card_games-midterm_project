@@ -10,11 +10,6 @@ body {
 }
 
 main {
-  .spacer {
-    background-color: $primary;
-    height: 50px;
-  }
-
   nav {
     display: flex;
     position: relative;
@@ -36,9 +31,10 @@ main {
 
   table {
     width: 95vw;
-    margin: 40px auto;
+    margin: 20px auto;
     background-color: white;
     text-align: center;
+    font-size: 1.5vw;
 
     th {
       background-color: $secondary-dark;
@@ -47,6 +43,10 @@ main {
 
     td {
       color: $secondary-dark;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
     }
   }
 }
@@ -57,5 +57,23 @@ main {
 
   h6 {
     padding: 0px 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  main {
+    table {
+      width: 100vw;
+      margin: 20px 0;
+      font-size: 10px;
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  main {
+    table {
+      font-size: 14px;
+    }
   }
 }

@@ -1,29 +1,66 @@
-# Node Skeleton
+# Goofpield (& Hearts) Card Game
 
-## Project Setup
+## Description
 
-1. Create your own empty repo on GitHub
-2. Clone this repository (do not fork)
-  - Suggestion: When cloning, specify a different folder name that is relevant to your project
-3. Remove the git remote: `git remote rm origin`
-4. Add a remote for your origin: `git remote add origin <your github repo URL>`
-5. Push to the new origin: `git push -u origin master`
-6. Verify that the skeleton code now shows up in your repo on GitHub
+Hosts a webpage where users can play games of Goofspiel or Hearts against other users. Users can also see rankings for each type of game and a users game history. 
+
+Currently games cannot be deleted and only five active games (either in lobby or started) can be played at once. Once a game is finished it will be removed from active games.
+
+Goofpiel and Hearts games will start when 2 and 4 players enter the lobby, respectively.
+
+## Screenshots
+
+Homepage
+
+!["Homepage"](https://github.com/acdarroll/)
+
+Games Page
+
+!["The active games page"](https://github.com/acdarroll/)
+
+Games Rankings
+
+!["Rankings for each game type based on total wins"](https://github.com/acdarroll/)
+
+User History
+
+!["A users game history"](https://github.com/acdarroll/)
 
 ## Getting Started
 
-1. Create the `.env` by using `.env.example` as a reference: `cp .env.example .env`
-2. Update the .env file with your correct local information
-3. Install dependencies: `npm i`
-4. Fix to binaries for sass: `npm rebuild node-sass`
-5. Run migrations: `npm run knex migrate:latest`
-  - Check the migrations folder to see what gets created in the DB
-6. Run the seed: `npm run knex seed:run`
-  - Check the seeds file to see what gets seeded in the DB
-7. Run the server: `npm run local`
-8. Visit `http://localhost:8080/`
+1. Download, clone or fork the repo
+2. Run `npm install` to install dependencies
+3. Create a database to store user and game information
+  - Run `psql -U vagrant -d template1` to connect to the postgres server
+  - Then `CREATE ROLE <role> WITH LOGIN password '<role>'`;
+  - Then `CREATE DATABASE <database_name> OWNER <role>`;
+4. Create a `.env` file and add the following info
+  - "DB_HOST=localhost"
+  - "DB_USER=<role>"
+  - "DB_PASS=<role>"
+  - "DB_NAME=<database_name>"
+  - "DB_PORT=5432"
+  - "COOKIE_SECRET=<some_string>"
+5. Install dependencies: `npm i`
+6. Run migrations: `npm run knex migrate:latest`
+  - 
+7. Run the seed: `npm run knex seed:run`
+8. Run the server: `npm run local`
+9. Visit `http://localhost:8080/`
 
 ## Dependencies
 
 - Node 5.10.x or above
 - NPM 3.8.x or above
+- Body Parser
+- Cookie Session
+- Dotenv - database and cookie parameters
+- EJS
+- Express
+- Knex - database queries
+- Node SASS Middleware - serving CSS files from SASS
+- PG - relational database
+
+## Dev Dependencies
+- Nodemon
+- Ngrok - ngrok provides domain for hosting

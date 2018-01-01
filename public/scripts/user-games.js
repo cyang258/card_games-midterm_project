@@ -2,6 +2,7 @@ $(() => {
   // Global interval variables
   let lobbyTimer;
   let gameTimer;
+
   let gameNames = {
     1: "Goofspiel",
     2: "Hearts"
@@ -16,14 +17,14 @@ $(() => {
     clearInterval(gameTimer);
   };
 
-  const findElementByData = function(array, data, value) {
-    array.forEach((element) => {
-      if(element.data(data, value)) {
-        return element;
-      }
-    });
+  // Escape user input to prevent XSS
+  const escape = function(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
   };
 
+  // Make the gameId the active tab and table
   const makeGameActive = function(gameId) {
     $(".game-table").children().hide();
     $(".game-tab").each(function() {
@@ -46,13 +47,13 @@ $(() => {
     let $table = $(
       `<figure class="game-room">
         <header class="opponent">
-          <p></p>
+          <a></a>
           <p class="opponent-score"></p>
         </header>
 
         <div class="board-middle">
           <aside class="opponent">
-            <p></p>
+            <a></a>
             <p class="opponent-score"></p>
           </aside>
           <section class="deck">
@@ -63,7 +64,7 @@ $(() => {
             </div>
           </section>
           <aside class="opponent">
-            <p></p>
+            <a></a>
             <p class="opponent-score"></p>
           </aside>
         </div>
@@ -93,22 +94,29 @@ $(() => {
 
   // Change score elements to reflect score
   const updateScore = function(scores, username) {
-    $(".active-table .user-score").text(scores.user);
+    $(".active-table .user-score").text(scores[username]);
 
-    for(let opponent in scores.opp) {
-      $(`.active-table .${opponent} .opponent-score`).text(`Score: ${scores.opp[opponent]}`);
+    for(let opponent in scores) {
+      $(`.active-table .${opponent} .opponent-score`).text(`Score: ${scores[opponent]}`);
     }
   };
 
-  const addOpponents = function(scores) {
-    let opps = Object.keys(scores.opp);
+  const addOpponents = function(scores, username) {
+    let users = Object.keys(scores);
+    let numPlayers = users.length;
+    let userFirst = users.splice(users.indexOf(username)).concat(users);
+    let clockwiseOrder = userFirst.splice(2, 1).concat(userFirst.slice(1));
+    console.log("Scores;", scores);
+    console.log("clockwiseOrder;", clockwiseOrder);
+
     $(".active-table .opponent").each(function() {
 
-      if(opps[0]) {
-        $(this).addClass(opps[0]);
-        $(this).addClass("active-opp").addClass(opps[0]);
-        $(this).find("p").text(`Username: ${opps[0]}`);
-        opps.shift();
+      if(clockwiseOrder[0]) {
+        $(this).addClass(clockwiseOrder[0]);
+        $(this).addClass("active-opp").addClass(clockwiseOrder[0]);
+        $(this).find("a").text(clockwiseOrder[0]);
+        $(this).find("a").attr("href", `/cards/users/${clockwiseOrder[0]}`);
+        clockwiseOrder.shift();
       }
     });
   };
@@ -137,7 +145,7 @@ $(() => {
 
   // Updates to the appropriate game after clicking tab
   const clickGameTab = function(event) {
-    let gameId = $(this).data("game-id"); // Get gameId from button
+    let gameId = $(this).data("game-id");
 
     makeGameActive(gameId);
   };
@@ -148,16 +156,19 @@ $(() => {
     if(!$(".game-tab")[0]) {
       $(".game-room").remove();
       games.forEach((game) => {
+        // Add button and table for each game
         let $button = makeButton(game.game_name_id, game.game_id);
-        $button.text(gameNames[game.game_name_id] + " (" + game.game_id + ")");
+        $button.text(`${gameNames[game.game_name_id]} (${game.game_id})`);
         $(".games").append($button);
 
         let $newTable = createNewGame(game.game_id).hide();
-        $(".game-table").append($newTable);       // Add button and table for each game
+        $(".game-table").append($newTable);
       });
       makeGameActive(games[0].game_id);
+
+      // Reset tab event listener
       $(".game-tab").off("click", clickGameTab);
-      $(".game-tab").click(clickGameTab);        // Reset tab event listener
+      $(".game-tab").click(clickGameTab);
     }
 
     let $buttons = $(".game-tab");
@@ -173,9 +184,9 @@ $(() => {
     });
   };
 
-  const updatePlayedCards = function(game, username) {
+  const updatePlayedCards = function(playedCards, username) {
     let $userPlay = $(".active-table .play-area");
-    let userPlayed = game.state.played.find((player) => { return player.username === username; });
+    let userPlayed = playedCards.find((player) => { return player.username === username; });
 
     if(!userPlayed) {
       $userPlay.find(".played-card").remove();
@@ -184,7 +195,7 @@ $(() => {
     let $opp = $(`.active-table .active-opp`);
     $opp.find("img").remove();
 
-    game.state.played.forEach((player) => {
+    playedCards.forEach((player) => {
       let $card = $(
         `<img class="${player.card}" src="/images/cards/${player.card}.png">`
         ).addClass("played-card");
@@ -213,8 +224,11 @@ $(() => {
       return;
     }
     let allGames = activeGames.concat(lobbyGames);
+
+    // Update tabs to show if it is the users turn
     updateTabs(allGames, username);
 
+    // If the current tabs game is over then show message
     let gameId = $(".active-table").data("game-id");
     let gameOver = finishedGames.find((game) => { return game.game_id === gameId; });
     if(gameOver) {
@@ -223,25 +237,31 @@ $(() => {
 
     let game = activeGames.find((game) => { return game.game_id === gameId; });
     if(game) {
+      console.log("Turn:", game.state.turn);
+      console.log("Played:", game.state.played);
+      console.log("Scores:", game.state.scores, "Round scores:", game.state.roundScores);
 
       if($(".active-table")[0] && !$(".active-table .active-opp")[0]) {
-        addOpponents(game.state.scores);
+        addOpponents(game.state.scores, username);
       }
-      updatePlayedCards(game, username);
+      updatePlayedCards(game.state.played, username);
 
+      // Turn event handlers on or off depending on whose turn it is
       $(".user-hand").off("click", clickCard);
       if(game.state.turn.indexOf(username) > -1) {
         $(".user-hand").click(clickCard);
       }
 
-      if(game.state.round !== $(".active-tab").data("round"))  {
-        $(".active-tab").data("round", game.state.round);
-        updateScore(game.state.scores);
+      // If the game is in a new round then update scores
+      if(game.state.played.length !== $(".active-tab").data("played"))  {
+        $(".active-tab").data("played", game.state.played.length);
+        updateScore(game.state.scores, username);
         if(game.game_name_id === 1) {
           updateDeck(game.state.hands.deck[0]);
         }
       }
 
+      // Calculates how many cards should be present to update hand accordingly
       let usersCards = $(".active-table .user-hand img").length
                        + $(".active-table .play-area img").length;
       if($(".active-table .play-area .played-card")[0]) {
@@ -267,7 +287,7 @@ $(() => {
     if(won === -1) {
       $(".board").append($(
         `<div class="end-message">
-          <h3>${state.winner} Won!</h3>
+          <h3>${escape(state.winner)} Won!</h3>
           <h6>Better Luck Next Time!</h6>
         </div>`
         ));
@@ -288,12 +308,17 @@ $(() => {
     setTimeout(() => { $(".end-message").first().remove(); }, 3000);
   };
 
-  // Check lobby to see if waiting, game has started, or not in any lobbies
+  // Check to see what games the user has
   const checkGames = function() {
     $.ajax({
       method: "GET",
-      url: "/cards/user/games",   // Replace with gameId
-      dataType: "JSON"
+      url: "/cards/user/games",
+      dataType: "JSON",
+      statusCode: {
+        401: function(xhr) {
+          clearGameTimer();
+        }
+      }
     }).then((games) => {
 
       if(!games) {
@@ -309,21 +334,21 @@ $(() => {
     let $image = $(".active-table .play-area img").first();
     let card = $image[0].className;
     $image.addClass("played-card");
+
+    // Turn off event listeners and remove the confirm button
     $(".active-table .confirm").off("click", confirmCard);
     $(".active-table .user-hand").off("click", clickCard);
     $(".active-table .confirm").remove();
 
     $.ajax({
-      method: "POST",
-      url: `/cards/games/${gameId}`,      // Replace with gameId
+      method: "PUT",
+      url: `/cards/games/${gameId}`,
       data: $.param({ card }),
       statusCode: {
-        404: function(result) {
+        400: function(xhr) {
           $(".active-table footer").append($(
-            `<p class="error">Cannot play that card</p>`));
-          setTimeout(function() {
-            $(".error").remove();
-          }, 2000);
+            `<p class="error">${xhr.responseText}</p>`));
+          setTimeout(function() { $(".error").remove(); }, 2000);
         }
       }
     });
@@ -356,14 +381,21 @@ $(() => {
 
     $.ajax({
       method: "POST",
-      url: `/cards/games/join/${gameNameId}`,   // Replace with gameNameId
-      data: $.param({ gameNameId })   // Replace with gameNameId and userId
+      url: `/cards/games/join/${gameNameId}`,
+      data: $.param({ gameNameId }),
+      statusCode: {
+        401: function(xhr) {
+            $(".board").prepend($(
+              `<p class="error">${xhr.responseText}</p>`));
+            setTimeout(function() { $(".error").remove(); }, 2000);
+        }
+      }
     }).then((res) => {
 
       let gameId = res[0];
       let $newTab = makeButton(gameNameId, gameId);
       $newTab.text(gameNames[gameNameId] + " (" + gameId + ")");
-      $(".games").append($newTab);               // Append new tab and table
+      $(".games").append($newTab);          // Append new tab and table
 
       let $newGame = createNewGame(gameId);
       $(".game-table").append($newGame);    // New game with gameId

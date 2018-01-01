@@ -80,3 +80,27 @@ body {
   }
 }
 
+.spacer {
+  background-color: $primary;
+  height: 50px;
+  @include row;
+  align-items: center;
+
+  button {
+    height: 100%;
+    background-color: $primary;
+    border: none;
+  }
+
+  .current-page {
+    border-bottom: 4px solid $secondary;
+  }
+
+  a {
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    margin: 0 20px;
+  }
+}
+

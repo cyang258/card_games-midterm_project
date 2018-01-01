@@ -9,8 +9,10 @@ let gamePlayerNumbers = {
   2: 4
 };
 
+// All routes for the webpage
 module.exports = (DataHelpers) => {
 
+  // Helper function
   const getOpponents = function(user, scores) {
     let opponents = [];
     for(let player in scores) {
@@ -71,6 +73,7 @@ module.exports = (DataHelpers) => {
       return DataHelpers.getUserGames(userId[0].id);
     }).then((games) => {
       if(games[0]) {
+        // If a user has games then format the results and only inlcude completed games
         let history = games.reduce((acc, game) => {
           if(game.end_date) {
             let newGame = {
@@ -91,7 +94,7 @@ module.exports = (DataHelpers) => {
         templateVars.playerName = username;
         res.render("users", templateVars);
       } else {
-        res.status(404).send("Could not find games for that user");
+        res.status(400).send("Could not find games for that user");
       }
     });
   });
@@ -105,7 +108,7 @@ module.exports = (DataHelpers) => {
     });
   });
 
-  // Users rankings
+  // Users rankings page
   router.get("/rankings", (req, res) => {
     let userId = req.session.userId;
 
@@ -114,9 +117,11 @@ module.exports = (DataHelpers) => {
     });
   });
 
-  // Users rankings
+  // Specfic game type rankings
   router.get("/rankings/:id", (req, res) => {
-    DataHelpers.getRankings()
+    let gameNameId = req.params.id;
+
+    DataHelpers.getRankings(gameNameId)
       .then((rankings) => {
         res.json(rankings);
     });
@@ -127,8 +132,8 @@ module.exports = (DataHelpers) => {
     let { username, password } = req.body;
 
     DataHelpers.getUserByLogin(username, password).then((result) => {
-      if(!result) {
-        res.status(404).send("Could not find user");
+      if(!result[0]) {
+        res.status(400).send("Could not find user");
       } else {
         req.session.userId = result[0].id;
         let templateVars = { userId: result[0].id };
@@ -157,6 +162,7 @@ module.exports = (DataHelpers) => {
         username = user[0].username;
         return DataHelpers.getUserGames(userId);
       }).then((games) => {
+        // Censor the hands so that users can't see other player's cards
         let activeGames = games.filter((game) => { return !game.end_date && game.start_date; });
         let lobbyGames = games.filter((game) => { return !game.start_date; });
         let finishedGames = games.filter((game) => { return game.end_date; });
@@ -166,7 +172,7 @@ module.exports = (DataHelpers) => {
         res.json({ activeGames, lobbyGames, finishedGames, username });
       });
     } else {
-      res.json(null);
+      res.status(401).send("Must be logged in to retrieve games");
     }
   });
 
@@ -185,14 +191,15 @@ module.exports = (DataHelpers) => {
         return DataHelpers.getOpenGames(gameNameId, userId);
       }).then((games) => {
         if(!games[0]) {
+          // Create a game if no open lobbies exist
           return DataHelpers.createGame(gameNameId);
         } else {
+          // Otherwise join a game and determine if there are enough players to start
           return DataHelpers.getUsersInGame(games[0].id)
             .then((users) => {
               users.push({ username });
               if(users.length === gamePlayerNumbers[gameNameId]) {
                 let state = gameHelpers.makeState(gameNameId, users);
-                console.log("State from game made:", state);
                 return DataHelpers.startGame(games[0].id, state);
               } else {
                 return [games[0].id];
@@ -205,12 +212,12 @@ module.exports = (DataHelpers) => {
         res.json(gameId);
       });
     } else {
-      res.status(404).send("Cannot join a lobby while not logged in");
+      res.status(401).send("Cannot join a lobby while not logged in");
     }
   });
 
   // Card played
-  router.post("/games/:id", (req, res) => {
+  router.put("/games/:id", (req, res) => {
     let card = gameHelpers.stringToCard(req.body.card);
     let gameId = req.params.id;
     let userId = req.session.userId;
@@ -234,6 +241,7 @@ module.exports = (DataHelpers) => {
         }
       });
     }).then((state) => {
+      // If there is a winner then add each users score to the database
       if(state[0].winner) {
         return DataHelpers.endGame(gameId)
         .then((state) => {
@@ -255,7 +263,7 @@ module.exports = (DataHelpers) => {
     }).then((state) => {
       res.status(201).send();
     }).catch((message) => {
-      res.status(201).send(message);
+      res.status(400).send(message);
     });
   });
 

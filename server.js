@@ -28,7 +28,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-// Testing with other users
+// Uncomment and change port to 8080 if using Ngrok domain
 // ngrok.connect(9090, function (err, url) {
 //   if(err) {
 //     console.log(err);
@@ -47,7 +47,7 @@ app.use(knexLogger(knex));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Use MDC components
+// Use Material Design Components
 app.use("/styles", express.static(__dirname + '/node_modules/material-components-web/dist'));
 
 app.use("/styles", sass({
@@ -59,7 +59,7 @@ app.use("/styles", sass({
 app.use(express.static("public"));
 
 
-// Use data helpers to contact db
+// Use data helpers to interface with database
 const DataHelpers = require("./lib/util/data_helpers")(knex);
 
 // Mount all resource routes

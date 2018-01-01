@@ -23,9 +23,7 @@
     "material-components-web": "^0.27.0",
     "morgan": "^1.7.0",
     "node-sass-middleware": "^0.9.8",
-    "pg": "^6.0.2",
-    "socket.io": "^2.0.4",
-    "ws": "^3.3.3"
+    "pg": "^6.0.2"
   },
   "devDependencies": {
     "ngrok": "^2.2.24",
