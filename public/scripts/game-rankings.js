@@ -5,6 +5,7 @@ $(() => {
       $(".active-tab").removeClass("active-tab");
       $(this).addClass("active-tab");
       let gameNameId = $(this).data("game-name-id");
+      console.log("gameNameId:", gameNameId);
       $("td").parent().remove();
 
       $.ajax({
