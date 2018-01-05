@@ -25,18 +25,6 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable('game_names', (table) => {
       table.increments('id');
       table.string('name');
-    }),
-    knex.schema.createTable('moves', (table) => {
-      table.increments('id');
-      table.integer('game_id');
-      table.integer('user_id');
-      table.string('card');
-      table.string('move');
-    }),
-    knex.schema.createTable('lobby', (table) => {
-      table.integer('game_name_id');
-      table.integer('user_id');
-      table.string('game_id');
     })
   ]);
 };
@@ -45,8 +33,6 @@ exports.down = function(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable('user_games'),
     knex.schema.dropTable('games'),
-    knex.schema.dropTable('game_names'),
-    knex.schema.dropTable('moves'),
-    knex.schema.dropTable('lobby')
+    knex.schema.dropTable('game_names')
   ]);
 };

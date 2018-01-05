@@ -249,7 +249,11 @@ module.exports = (DataHelpers) => {
             let array = [];
             for(let user in scores) {
               if(user !== "deck") {
-                array.push(DataHelpers.addGameScores(scores[user], gameId, user));
+                array.push(
+                  DataHelpers.getUserId(user)
+                  .then((user_id) => {
+                    return DataHelpers.addGameScores(scores[user], gameId, user_id[0].id);
+                }));
               }
             }
             return array;
